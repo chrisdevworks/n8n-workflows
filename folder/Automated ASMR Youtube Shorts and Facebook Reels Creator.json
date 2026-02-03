@@ -1,0 +1,1224 @@
+{
+  "active": true,
+  "activeVersion": {
+    "updatedAt": "2026-02-02T18:37:32.000Z",
+    "createdAt": "2026-02-02T18:34:40.732Z",
+    "versionId": "9294371d-beb6-4003-8ab6-b179b8071027",
+    "workflowId": "7FlsU7aeQ2DebtKPxefYU",
+    "nodes": [
+      {
+        "parameters": {
+          "rule": {
+            "interval": [
+              {}
+            ]
+          }
+        },
+        "type": "n8n-nodes-base.scheduleTrigger",
+        "typeVersion": 1.3,
+        "position": [
+          -288,
+          -64
+        ],
+        "id": "f3e2fb0b-c66e-49ab-a6cf-d5c94e3e85ba",
+        "name": "Schedule Trigger"
+      },
+      {
+        "parameters": {
+          "jsonSchemaExample": "{\n\"prompt\":\"<insert generated prompt here>\",\n\"videoTitle\":\"<insert generated video title here>\",\n\"videoDescription\":\"<insert generated video description here>\"\n}"
+        },
+        "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+        "typeVersion": 1.3,
+        "position": [
+          112,
+          144
+        ],
+        "id": "937beec9-71c0-4876-bcab-b56717023f8e",
+        "name": "Structured Output Parser"
+      },
+      {
+        "parameters": {
+          "options": {}
+        },
+        "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+        "typeVersion": 1,
+        "position": [
+          -32,
+          144
+        ],
+        "id": "8d1c04fc-ea9f-4518-ba4d-107fb16b1238",
+        "name": "Google Gemini Chat Model",
+        "credentials": {
+          "googlePalmApi": {
+            "id": "q2OL1kDs7kbTbaP4",
+            "name": "Google Gemini(PaLM) Api account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "useJson": true,
+          "claimsJson": "={\n  \"iss\": \"{{ $json.client_email }}\",\n  \"scope\": \"https://www.googleapis.com/auth/cloud-platform\",\n  \"aud\": \"https://oauth2.googleapis.com/token\",\n  \"iat\": {{ Math.floor($now.toSeconds()) }},\n  \"exp\": {{ Math.floor($now.plus({hours: 1}).toSeconds()) }}\n}",
+          "options": {}
+        },
+        "type": "n8n-nodes-base.jwt",
+        "typeVersion": 1,
+        "position": [
+          528,
+          -64
+        ],
+        "id": "fbece423-8179-426a-a866-bff16d76a68e",
+        "name": "JWT",
+        "credentials": {
+          "jwtAuth": {
+            "id": "Ijg7MII2KUeSiXaN",
+            "name": "JWT Auth account 2"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "amount": 30
+        },
+        "type": "n8n-nodes-base.wait",
+        "typeVersion": 1.1,
+        "position": [
+          1184,
+          -272
+        ],
+        "id": "d3176c32-ecbe-4dc9-a82d-9aa8163b28c2",
+        "name": "Wait",
+        "webhookId": "65b939d1-bdea-488a-9bc5-55561834ef12"
+      },
+      {
+        "parameters": {
+          "operation": "toBinary",
+          "sourceProperty": "body.response.videos[0].bytesBase64Encoded",
+          "options": {}
+        },
+        "type": "n8n-nodes-base.convertToFile",
+        "typeVersion": 1.1,
+        "position": [
+          1744,
+          16
+        ],
+        "id": "87f18064-cdb9-4efa-a841-f74dec902cb0",
+        "name": "Convert to File"
+      },
+      {
+        "parameters": {
+          "method": "POST",
+          "url": "=https://oauth2.googleapis.com/token",
+          "sendBody": true,
+          "contentType": "form-urlencoded",
+          "bodyParameters": {
+            "parameters": [
+              {
+                "name": "grant_type",
+                "value": "urn:ietf:params:oauth:grant-type:jwt-bearer"
+              },
+              {
+                "name": "assertion",
+                "value": "={{ $json.token }}"
+              }
+            ]
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.httpRequest",
+        "typeVersion": 4.3,
+        "position": [
+          736,
+          -64
+        ],
+        "id": "425294a6-3606-4a7b-927a-2ef63bd04221",
+        "name": "Exchange JWT for Access Token"
+      },
+      {
+        "parameters": {
+          "method": "POST",
+          "url": "https://us-central1-aiplatform.googleapis.com/v1/projects/asmrvideocreator-486214/locations/us-central1/publishers/google/models/veo-3.1-generate-001:predictLongRunning",
+          "sendHeaders": true,
+          "headerParameters": {
+            "parameters": [
+              {
+                "name": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "name": "Authorization",
+                "value": "=Bearer {{ $json.access_token }}"
+              }
+            ]
+          },
+          "sendBody": true,
+          "specifyBody": "json",
+          "jsonBody": "={\n  \"instances\": [\n    {\n      \"prompt\": \"{{ $('Basic LLM Chain Prompt Generator').item.json.output.prompt }}\"\n    }\n  ],\n  \"parameters\": {\n    \"durationSeconds\": 8,\n    \"generateAudio\": true,\n    \"aspectRatio\": \"9:16\",\n    \"negativePrompt\": \"UI, overlays, captions, on-screen buttons, phone interface, subtitles, mentions\"\n  }\n}",
+          "options": {}
+        },
+        "type": "n8n-nodes-base.httpRequest",
+        "typeVersion": 4.3,
+        "position": [
+          992,
+          -272
+        ],
+        "id": "9b38a240-ea73-4ba4-980d-86331f970e09",
+        "name": "Generate Video"
+      },
+      {
+        "parameters": {
+          "conditions": {
+            "options": {
+              "caseSensitive": true,
+              "leftValue": "",
+              "typeValidation": "strict",
+              "version": 3
+            },
+            "conditions": [
+              {
+                "id": "941054fe-deeb-4541-947f-3acf2fa01b53",
+                "leftValue": "={{ $json.body.response.raiMediaFilteredReasons }}",
+                "rightValue": "",
+                "operator": {
+                  "type": "string",
+                  "operation": "exists",
+                  "singleValue": true
+                }
+              }
+            ],
+            "combinator": "and"
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.if",
+        "typeVersion": 2.3,
+        "position": [
+          1264,
+          -16
+        ],
+        "id": "05e733fe-ae3a-496d-acc3-b8910c01196a",
+        "name": "isFiltered?"
+      },
+      {
+        "parameters": {
+          "conditions": {
+            "options": {
+              "caseSensitive": true,
+              "leftValue": "",
+              "typeValidation": "strict",
+              "version": 3
+            },
+            "conditions": [
+              {
+                "id": "941054fe-deeb-4541-947f-3acf2fa01b53",
+                "leftValue": "={{ $json.body.done }}",
+                "rightValue": "OK",
+                "operator": {
+                  "type": "boolean",
+                  "operation": "true",
+                  "singleValue": true
+                }
+              }
+            ],
+            "combinator": "and"
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.if",
+        "typeVersion": 2.3,
+        "position": [
+          1616,
+          -272
+        ],
+        "id": "fd3cb95e-591e-469f-a7c9-8be3527f5f83",
+        "name": "isDone?"
+      },
+      {
+        "parameters": {
+          "conditions": {
+            "options": {
+              "caseSensitive": true,
+              "leftValue": "",
+              "typeValidation": "strict",
+              "version": 3
+            },
+            "conditions": [
+              {
+                "id": "941054fe-deeb-4541-947f-3acf2fa01b53",
+                "leftValue": "={{ $json.body.error }}",
+                "rightValue": "OK",
+                "operator": {
+                  "type": "string",
+                  "operation": "exists",
+                  "singleValue": true
+                }
+              }
+            ],
+            "combinator": "and"
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.if",
+        "typeVersion": 2.3,
+        "position": [
+          1504,
+          0
+        ],
+        "id": "51b94bdc-5a42-419b-9074-6ce4d356e945",
+        "name": "isError?"
+      },
+      {
+        "parameters": {
+          "hostUrl": "graph-video.facebook.com",
+          "httpRequestMethod": "POST",
+          "graphApiVersion": "v23.0",
+          "node": "me",
+          "edge": "videos",
+          "sendBinaryData": true,
+          "binaryPropertyName": "data",
+          "options": {
+            "queryParameters": {
+              "parameter": [
+                {
+                  "name": "description",
+                  "value": "={{ $('Basic LLM Chain Prompt Generator').item.json.output.videoDescription }}"
+                }
+              ]
+            }
+          }
+        },
+        "type": "n8n-nodes-base.facebookGraphApi",
+        "typeVersion": 1,
+        "position": [
+          1936,
+          -272
+        ],
+        "id": "fb010968-12b6-4358-b396-30d9b88be879",
+        "name": "Facebook Graph API",
+        "credentials": {
+          "facebookGraphApi": {
+            "id": "Ov4dZUnI7ypg74W3",
+            "name": "Facebook Access Lifetime"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "resource": "video",
+          "operation": "upload",
+          "title": "={{ $('Basic LLM Chain Prompt Generator').item.json.output.videoTitle }}",
+          "regionCode": "PH",
+          "categoryId": "24",
+          "options": {
+            "description": "={{ $('Basic LLM Chain Prompt Generator').item.json.output.videoDescription }}",
+            "privacyStatus": "public"
+          }
+        },
+        "type": "n8n-nodes-base.youTube",
+        "typeVersion": 1,
+        "position": [
+          2048,
+          16
+        ],
+        "id": "a52859a8-94c6-4b78-8907-df88a9433baf",
+        "name": "Upload a video",
+        "credentials": {
+          "youTubeOAuth2Api": {
+            "id": "kDoRY5zcKQSKKuDT",
+            "name": "YouTube account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "promptType": "define",
+          "text": "generate ASMR.",
+          "hasOutputParser": true,
+          "messages": {
+            "messageValues": [
+              {
+                "message": "You are an expert at creating highly specific, viral ASMR-style video generation prompts for vertical short-form content (TikTok/Reels/Shorts). Your task is to generate ONE complete, ready-to-use prompt based exactly on this template structure and wording, but with these mandatory changes:\n\nReplace \"Rambutan\" with a completely different fruit each time. Choose a visually appealing, interesting fruit — it can be common (like apple, strawberry, lemon, banana) or exotic/tropical (like dragon fruit, lychee, mangosteen, passion fruit, jackfruit, guava, papaya, durian, pomegranate, kiwi, pear, peach, pineapple slice focus, starfruit, etc.). Pick a new one every generation to keep variety. Make sure the fruit is whole and full-shaped at the start.\n\nKeep the soft light-colored outer hue example logic: adapt the color description to match a natural hue for the new fruit (e.g., pale green for kiwi, deep red for strawberry, bright yellow for lemon, vibrant pink for dragon fruit flesh hint, etc.).\n\nPreserve every other detail word-for-word from the original: real vertical smartphone portrait mode (9:16), physically vertical camera, no simulated rotation, hyper-realistic cinematic close-up, transparent jelly glass material, perfectly centered on wooden cutting board, subtle glow under studio lighting, human hand visible holding sharp stainless steel knife just above, ready to slice, slow motion first clean slice where front section breaks off cleanly with delicate jelly-crack sounds, immediate second smooth slice, transparent shards scatter lightly, ASMR slicing sounds only — no talking, no music, only hand/knife/fruit visible, ultra-sharp macro lens, shallow depth of field, cinematic lighting, 4K, 30 FPS.\n\nAdditionally, at the end of the generated prompt, always append exactly these two new lines:\n\nGenerate a catchy, viral Video Title for this ASMR clip (short, engaging, emoji-friendly, 5-10 words max).\nGenerate a short, SEO-optimized Caption for TikTok/Instagram/Reels (include relevant hashtags like #ASMR #GlassFruit #Satisfying #SlowMotion #JellyCutting #ASMRsounds).\n\nOutput only the single final generated prompt + title + caption. Do not add any extra explanations, comments, or multiple versions.\nNow generate one such prompt right now. Start with a different fruit from Rambutan.\n\nMake your output in JSON format:\n{\n\"prompt\":\"<insert generated prompt here>\",\n\"videoTitle\":\"<insert generated video title here>\",\n\"videoDescription\":\"<insert generated video description here>\"\n}"
+              }
+            ]
+          },
+          "batching": {}
+        },
+        "type": "@n8n/n8n-nodes-langchain.chainLlm",
+        "typeVersion": 1.9,
+        "position": [
+          -32,
+          -64
+        ],
+        "id": "4df64755-c92c-4f35-aa6d-4485b65ea9c8",
+        "name": "Basic LLM Chain Prompt Generator"
+      },
+      {
+        "parameters": {
+          "jsCode": "return [\n{\n  \"type\": \"service_account\",\n  \"project_id\": \"asmrvideocreator-486214\",\n  \"private_key_id\": \"d1dc575a53f183afc0968c79aa98ab8058df1b5e\",\n  \"client_email\": \"asmrvideocreator@asmrvideocreator-486214.iam.gserviceaccount.com\",\n  \"client_id\": \"111789364852009829570\",\n  \"auth_uri\": \"https://accounts.google.com/o/oauth2/auth\",\n  \"token_uri\": \"https://oauth2.googleapis.com/token\",\n  \"auth_provider_x509_cert_url\": \"https://www.googleapis.com/oauth2/v1/certs\",\n  \"client_x509_cert_url\": \"https://www.googleapis.com/robot/v1/metadata/x509/asmrvideocreator%40asmrvideocreator-486214.iam.gserviceaccount.com\",\n  \"universe_domain\": \"googleapis.com\"\n}\n\n\n]"
+        },
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          320,
+          -64
+        ],
+        "id": "8a651e88-9c79-4dff-a114-7c54faf5bc15",
+        "name": "Secret Payload"
+      },
+      {
+        "parameters": {
+          "method": "POST",
+          "url": "=https://us-central1-aiplatform.googleapis.com/v1/projects/asmrvideocreator-486214/locations/us-central1/publishers/google/models/veo-3.1-generate-001:fetchPredictOperation",
+          "sendHeaders": true,
+          "headerParameters": {
+            "parameters": [
+              {
+                "name": "Authorization",
+                "value": "=Bearer {{ $('Exchange JWT for Access Token').item.json.access_token }}"
+              }
+            ]
+          },
+          "sendBody": true,
+          "bodyParameters": {
+            "parameters": [
+              {
+                "name": "operationName",
+                "value": "={{ $('Generate Video').item.json.name }}"
+              }
+            ]
+          },
+          "options": {
+            "response": {
+              "response": {
+                "fullResponse": true
+              }
+            }
+          }
+        },
+        "type": "n8n-nodes-base.httpRequest",
+        "typeVersion": 4.3,
+        "position": [
+          1392,
+          -272
+        ],
+        "id": "3d3361d0-68dd-4231-87b5-360c141e20e6",
+        "name": "Get Video"
+      }
+    ],
+    "connections": {
+      "Schedule Trigger": {
+        "main": [
+          [
+            {
+              "node": "Basic LLM Chain Prompt Generator",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Structured Output Parser": {
+        "ai_outputParser": [
+          [
+            {
+              "node": "Basic LLM Chain Prompt Generator",
+              "type": "ai_outputParser",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Google Gemini Chat Model": {
+        "ai_languageModel": [
+          [
+            {
+              "node": "Basic LLM Chain Prompt Generator",
+              "type": "ai_languageModel",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "JWT": {
+        "main": [
+          [
+            {
+              "node": "Exchange JWT for Access Token",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Wait": {
+        "main": [
+          [
+            {
+              "node": "Get Video",
+              "type": "main",
+              "index": 0
+            },
+            {
+              "node": "isDone?",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Exchange JWT for Access Token": {
+        "main": [
+          [
+            {
+              "node": "Generate Video",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Generate Video": {
+        "main": [
+          [
+            {
+              "node": "Wait",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "isDone?": {
+        "main": [
+          [
+            {
+              "node": "isFiltered?",
+              "type": "main",
+              "index": 0
+            }
+          ],
+          [
+            {
+              "node": "Wait",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "isError?": {
+        "main": [
+          [
+            {
+              "node": "Generate Video",
+              "type": "main",
+              "index": 0
+            }
+          ],
+          [
+            {
+              "node": "Convert to File",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "isFiltered?": {
+        "main": [
+          [
+            {
+              "node": "Basic LLM Chain Prompt Generator",
+              "type": "main",
+              "index": 0
+            }
+          ],
+          [
+            {
+              "node": "isError?",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Convert to File": {
+        "main": [
+          [
+            {
+              "node": "Facebook Graph API",
+              "type": "main",
+              "index": 0
+            },
+            {
+              "node": "Upload a video",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Facebook Graph API": {
+        "main": [
+          []
+        ]
+      },
+      "Basic LLM Chain Prompt Generator": {
+        "main": [
+          [
+            {
+              "node": "Secret Payload",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Secret Payload": {
+        "main": [
+          [
+            {
+              "node": "JWT",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Get Video": {
+        "main": [
+          [
+            {
+              "node": "isDone?",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    },
+    "authors": "Christopher Christian Cosingan",
+    "name": "Version 9294371d",
+    "description": "",
+    "autosaved": false
+  },
+  "activeVersionId": "9294371d-beb6-4003-8ab6-b179b8071027",
+  "connections": {
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "Basic LLM Chain Prompt Generator",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Structured Output Parser": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "Basic LLM Chain Prompt Generator",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Basic LLM Chain Prompt Generator",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "JWT": {
+      "main": [
+        [
+          {
+            "node": "Exchange JWT for Access Token",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait": {
+      "main": [
+        [
+          {
+            "node": "Get Video",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "isDone?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Exchange JWT for Access Token": {
+      "main": [
+        [
+          {
+            "node": "Generate Video",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generate Video": {
+      "main": [
+        [
+          {
+            "node": "Wait",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "isDone?": {
+      "main": [
+        [
+          {
+            "node": "isFiltered?",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Wait",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "isError?": {
+      "main": [
+        [
+          {
+            "node": "Generate Video",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Convert to File",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "isFiltered?": {
+      "main": [
+        [
+          {
+            "node": "Basic LLM Chain Prompt Generator",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "isError?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Convert to File": {
+      "main": [
+        [
+          {
+            "node": "Facebook Graph API",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Upload a video",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Facebook Graph API": {
+      "main": [
+        []
+      ]
+    },
+    "Basic LLM Chain Prompt Generator": {
+      "main": [
+        [
+          {
+            "node": "Secret Payload",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Secret Payload": {
+      "main": [
+        [
+          {
+            "node": "JWT",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Video": {
+      "main": [
+        [
+          {
+            "node": "isDone?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "createdAt": "2026-02-01T12:52:10.939Z",
+  "id": "7FlsU7aeQ2DebtKPxefYU",
+  "isArchived": false,
+  "meta": {
+    "templateCredsSetupCompleted": true
+  },
+  "name": "Automated ASMR Youtube Shorts and Facebook Reels Creator",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {}
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.3,
+      "position": [
+        -288,
+        -64
+      ],
+      "id": "f3e2fb0b-c66e-49ab-a6cf-d5c94e3e85ba",
+      "name": "Schedule Trigger"
+    },
+    {
+      "parameters": {
+        "jsonSchemaExample": "{\n\"prompt\":\"<insert generated prompt here>\",\n\"videoTitle\":\"<insert generated video title here>\",\n\"videoDescription\":\"<insert generated video description here>\"\n}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.3,
+      "position": [
+        112,
+        144
+      ],
+      "id": "937beec9-71c0-4876-bcab-b56717023f8e",
+      "name": "Structured Output Parser"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        -32,
+        144
+      ],
+      "id": "8d1c04fc-ea9f-4518-ba4d-107fb16b1238",
+      "name": "Google Gemini Chat Model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "q2OL1kDs7kbTbaP4",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "useJson": true,
+        "claimsJson": "={\n  \"iss\": \"{{ $json.client_email }}\",\n  \"scope\": \"https://www.googleapis.com/auth/cloud-platform\",\n  \"aud\": \"https://oauth2.googleapis.com/token\",\n  \"iat\": {{ Math.floor($now.toSeconds()) }},\n  \"exp\": {{ Math.floor($now.plus({hours: 1}).toSeconds()) }}\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.jwt",
+      "typeVersion": 1,
+      "position": [
+        528,
+        -64
+      ],
+      "id": "fbece423-8179-426a-a866-bff16d76a68e",
+      "name": "JWT",
+      "credentials": {
+        "jwtAuth": {
+          "id": "Ijg7MII2KUeSiXaN",
+          "name": "JWT Auth account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "amount": 30
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        1184,
+        -272
+      ],
+      "id": "d3176c32-ecbe-4dc9-a82d-9aa8163b28c2",
+      "name": "Wait",
+      "webhookId": "65b939d1-bdea-488a-9bc5-55561834ef12"
+    },
+    {
+      "parameters": {
+        "operation": "toBinary",
+        "sourceProperty": "body.response.videos[0].bytesBase64Encoded",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.convertToFile",
+      "typeVersion": 1.1,
+      "position": [
+        1744,
+        16
+      ],
+      "id": "87f18064-cdb9-4efa-a841-f74dec902cb0",
+      "name": "Convert to File"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://oauth2.googleapis.com/token",
+        "sendBody": true,
+        "contentType": "form-urlencoded",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "grant_type",
+              "value": "urn:ietf:params:oauth:grant-type:jwt-bearer"
+            },
+            {
+              "name": "assertion",
+              "value": "={{ $json.token }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        736,
+        -64
+      ],
+      "id": "425294a6-3606-4a7b-927a-2ef63bd04221",
+      "name": "Exchange JWT for Access Token"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://us-central1-aiplatform.googleapis.com/v1/projects/asmrvideocreator-486214/locations/us-central1/publishers/google/models/veo-3.1-generate-001:predictLongRunning",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{ $json.access_token }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"instances\": [\n    {\n      \"prompt\": \"{{ $('Basic LLM Chain Prompt Generator').item.json.output.prompt }}\"\n    }\n  ],\n  \"parameters\": {\n    \"durationSeconds\": 8,\n    \"generateAudio\": true,\n    \"aspectRatio\": \"9:16\",\n    \"negativePrompt\": \"UI, overlays, captions, on-screen buttons, phone interface, subtitles, mentions\"\n  }\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        992,
+        -272
+      ],
+      "id": "9b38a240-ea73-4ba4-980d-86331f970e09",
+      "name": "Generate Video"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "941054fe-deeb-4541-947f-3acf2fa01b53",
+              "leftValue": "={{ $json.body.response.raiMediaFilteredReasons }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "exists",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        1264,
+        -16
+      ],
+      "id": "05e733fe-ae3a-496d-acc3-b8910c01196a",
+      "name": "isFiltered?"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "941054fe-deeb-4541-947f-3acf2fa01b53",
+              "leftValue": "={{ $json.body.done }}",
+              "rightValue": "OK",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        1616,
+        -272
+      ],
+      "id": "fd3cb95e-591e-469f-a7c9-8be3527f5f83",
+      "name": "isDone?"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "941054fe-deeb-4541-947f-3acf2fa01b53",
+              "leftValue": "={{ $json.body.error }}",
+              "rightValue": "OK",
+              "operator": {
+                "type": "string",
+                "operation": "exists",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        1504,
+        0
+      ],
+      "id": "51b94bdc-5a42-419b-9074-6ce4d356e945",
+      "name": "isError?"
+    },
+    {
+      "parameters": {
+        "hostUrl": "graph-video.facebook.com",
+        "httpRequestMethod": "POST",
+        "graphApiVersion": "v23.0",
+        "node": "me",
+        "edge": "videos",
+        "sendBinaryData": true,
+        "binaryPropertyName": "data",
+        "options": {
+          "queryParameters": {
+            "parameter": [
+              {
+                "name": "description",
+                "value": "={{ $('Basic LLM Chain Prompt Generator').item.json.output.videoDescription }}"
+              }
+            ]
+          }
+        }
+      },
+      "type": "n8n-nodes-base.facebookGraphApi",
+      "typeVersion": 1,
+      "position": [
+        1936,
+        -272
+      ],
+      "id": "fb010968-12b6-4358-b396-30d9b88be879",
+      "name": "Facebook Graph API",
+      "credentials": {
+        "facebookGraphApi": {
+          "id": "Ov4dZUnI7ypg74W3",
+          "name": "Facebook Access Lifetime"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "video",
+        "operation": "upload",
+        "title": "={{ $('Basic LLM Chain Prompt Generator').item.json.output.videoTitle }}",
+        "regionCode": "PH",
+        "categoryId": "24",
+        "options": {
+          "description": "={{ $('Basic LLM Chain Prompt Generator').item.json.output.videoDescription }}",
+          "privacyStatus": "public"
+        }
+      },
+      "type": "n8n-nodes-base.youTube",
+      "typeVersion": 1,
+      "position": [
+        2048,
+        16
+      ],
+      "id": "a52859a8-94c6-4b78-8907-df88a9433baf",
+      "name": "Upload a video",
+      "credentials": {
+        "youTubeOAuth2Api": {
+          "id": "kDoRY5zcKQSKKuDT",
+          "name": "YouTube account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "generate ASMR.",
+        "hasOutputParser": true,
+        "messages": {
+          "messageValues": [
+            {
+              "message": "You are an expert at creating highly specific, viral ASMR-style video generation prompts for vertical short-form content (TikTok/Reels/Shorts). Your task is to generate ONE complete, ready-to-use prompt based exactly on this template structure and wording, but with these mandatory changes:\n\nReplace \"Rambutan\" with a completely different fruit each time. Choose a visually appealing, interesting fruit — it can be common (like apple, strawberry, lemon, banana) or exotic/tropical (like dragon fruit, lychee, mangosteen, passion fruit, jackfruit, guava, papaya, durian, pomegranate, kiwi, pear, peach, pineapple slice focus, starfruit, etc.). Pick a new one every generation to keep variety. Make sure the fruit is whole and full-shaped at the start.\n\nKeep the soft light-colored outer hue example logic: adapt the color description to match a natural hue for the new fruit (e.g., pale green for kiwi, deep red for strawberry, bright yellow for lemon, vibrant pink for dragon fruit flesh hint, etc.).\n\nPreserve every other detail word-for-word from the original: real vertical smartphone portrait mode (9:16), physically vertical camera, no simulated rotation, hyper-realistic cinematic close-up, transparent jelly glass material, perfectly centered on wooden cutting board, subtle glow under studio lighting, human hand visible holding sharp stainless steel knife just above, ready to slice, slow motion first clean slice where front section breaks off cleanly with delicate jelly-crack sounds, immediate second smooth slice, transparent shards scatter lightly, ASMR slicing sounds only — no talking, no music, only hand/knife/fruit visible, ultra-sharp macro lens, shallow depth of field, cinematic lighting, 4K, 30 FPS.\n\nAdditionally, at the end of the generated prompt, always append exactly these two new lines:\n\nGenerate a catchy, viral Video Title for this ASMR clip (short, engaging, emoji-friendly, 5-10 words max).\nGenerate a short, SEO-optimized Caption for TikTok/Instagram/Reels (include relevant hashtags like #ASMR #GlassFruit #Satisfying #SlowMotion #JellyCutting #ASMRsounds).\n\nOutput only the single final generated prompt + title + caption. Do not add any extra explanations, comments, or multiple versions.\nNow generate one such prompt right now. Start with a different fruit from Rambutan.\n\nMake your output in JSON format:\n{\n\"prompt\":\"<insert generated prompt here>\",\n\"videoTitle\":\"<insert generated video title here>\",\n\"videoDescription\":\"<insert generated video description here>\"\n}"
+            }
+          ]
+        },
+        "batching": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.9,
+      "position": [
+        -32,
+        -64
+      ],
+      "id": "4df64755-c92c-4f35-aa6d-4485b65ea9c8",
+      "name": "Basic LLM Chain Prompt Generator"
+    },
+    {
+      "parameters": {
+        "jsCode": "return [\n{\n  \"type\": \"service_account\",\n  \"project_id\": \"asmrvideocreator-486214\",\n  \"private_key_id\": \"d1dc575a53f183afc0968c79aa98ab8058df1b5e\",\n  \"client_email\": \"asmrvideocreator@asmrvideocreator-486214.iam.gserviceaccount.com\",\n  \"client_id\": \"111789364852009829570\",\n  \"auth_uri\": \"https://accounts.google.com/o/oauth2/auth\",\n  \"token_uri\": \"https://oauth2.googleapis.com/token\",\n  \"auth_provider_x509_cert_url\": \"https://www.googleapis.com/oauth2/v1/certs\",\n  \"client_x509_cert_url\": \"https://www.googleapis.com/robot/v1/metadata/x509/asmrvideocreator%40asmrvideocreator-486214.iam.gserviceaccount.com\",\n  \"universe_domain\": \"googleapis.com\"\n}\n\n\n]"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        320,
+        -64
+      ],
+      "id": "8a651e88-9c79-4dff-a114-7c54faf5bc15",
+      "name": "Secret Payload"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://us-central1-aiplatform.googleapis.com/v1/projects/asmrvideocreator-486214/locations/us-central1/publishers/google/models/veo-3.1-generate-001:fetchPredictOperation",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{ $('Exchange JWT for Access Token').item.json.access_token }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "operationName",
+              "value": "={{ $('Generate Video').item.json.name }}"
+            }
+          ]
+        },
+        "options": {
+          "response": {
+            "response": {
+              "fullResponse": true
+            }
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        1392,
+        -272
+      ],
+      "id": "3d3361d0-68dd-4231-87b5-360c141e20e6",
+      "name": "Get Video"
+    }
+  ],
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1",
+    "availableInMCP": false
+  },
+  "shared": [
+    {
+      "updatedAt": "2026-02-01T12:52:10.941Z",
+      "createdAt": "2026-02-01T12:52:10.941Z",
+      "role": "workflow:owner",
+      "workflowId": "7FlsU7aeQ2DebtKPxefYU",
+      "projectId": "xjoV5aejNHZgjiXo"
+    }
+  ],
+  "staticData": null,
+  "tags": [],
+  "triggerCount": 1,
+  "updatedAt": "2026-02-02T18:34:40.730Z",
+  "versionId": "9294371d-beb6-4003-8ab6-b179b8071027"
+}
