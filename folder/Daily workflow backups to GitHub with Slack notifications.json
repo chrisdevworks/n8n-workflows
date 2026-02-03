@@ -956,7 +956,7 @@
       "type": "n8n-nodes-base.set",
       "position": [
         3760,
-        408
+        416
       ],
       "typeVersion": 3.3
     },
@@ -1308,8 +1308,8 @@
       "name": "Get a file",
       "type": "n8n-nodes-base.github",
       "position": [
-        2192,
-        192
+        2208,
+        160
       ],
       "webhookId": "c12420d3-b858-4ee4-81c4-9adc03e30865",
       "typeVersion": 1.1,
@@ -1362,7 +1362,7 @@
       "type": "n8n-nodes-base.if",
       "position": [
         2416,
-        192
+        160
       ],
       "typeVersion": 2.2
     },
@@ -1376,7 +1376,7 @@
       "type": "n8n-nodes-base.httpRequest",
       "position": [
         2640,
-        168
+        112
       ],
       "typeVersion": 4.2
     },
@@ -1427,7 +1427,7 @@
       "type": "n8n-nodes-base.slack",
       "position": [
         2192,
-        0
+        -48
       ],
       "webhookId": "a0c6e8c8-5d71-40fa-b02b-63a7ed5726c4",
       "executeOnce": true,
@@ -1470,6 +1470,6 @@
   "staticData": null,
   "tags": [],
   "triggerCount": 1,
-  "updatedAt": "2026-02-03T09:56:49.657Z",
-  "versionId": "13787105-03d2-4d35-b958-e88fda2de6ee"
+  "updatedAt": "2026-02-03T10:24:53.949Z",
+  "versionId": "d6443a2e-908a-4aa8-8fe4-fdae4d0ea25b"
 }
