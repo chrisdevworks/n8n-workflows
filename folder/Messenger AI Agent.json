@@ -1,0 +1,993 @@
+{
+  "active": true,
+  "activeVersion": {
+    "updatedAt": "2026-02-03T10:18:18.000Z",
+    "createdAt": "2026-02-03T10:17:56.579Z",
+    "versionId": "49023eb2-16cb-4c4a-8fba-db59ae9ea867",
+    "workflowId": "9PX4g_rVlcThRbFZ_5Z0Q",
+    "nodes": [
+      {
+        "parameters": {
+          "promptType": "define",
+          "text": "=You’re a helpful AI assistant for Technical Virtual Assistants PH, an online platform that trains people to become skilled technical virtual assistant.\n\nReply to customer questions using only the info in the knowledge base below. Be clear, friendly, and keep answers short but informative – no fluff or guessing.\n\nDO:\nGive clear, complete answers using the knowledge base.\nBe friendly and jolly.\n\nDON’T (AND IMPORTANT):\nMake up answers.\nAdd any greetings (Hello, Hi, etc.).\nReturn an empty response.\n\nAnswer questions not covered in the knowledge base – suggest they contact support instead, or answer it on your own.\n\nKnowledge Base:\n{{ $json.content }}\n\nCustomer Questions:\n{{ $('Webhook').item.json.body.entry[0].messaging[0].message.text }}",
+          "hasOutputParser": true,
+          "options": {}
+        },
+        "type": "@n8n/n8n-nodes-langchain.agent",
+        "typeVersion": 3.1,
+        "position": [
+          112,
+          0
+        ],
+        "id": "896c21f1-7993-4f6f-87ac-4a1c1eb912ca",
+        "name": "AI Agent"
+      },
+      {
+        "parameters": {
+          "modelName": "models/gemini-3-flash-preview",
+          "options": {}
+        },
+        "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+        "typeVersion": 1,
+        "position": [
+          -560,
+          768
+        ],
+        "id": "27836c74-703b-485d-a42e-142710642c0d",
+        "name": "Google Gemini Chat Model",
+        "credentials": {
+          "googlePalmApi": {
+            "id": "q2OL1kDs7kbTbaP4",
+            "name": "Google Gemini(PaLM) Api account"
+          }
+        },
+        "disabled": true
+      },
+      {
+        "parameters": {
+          "sessionIdType": "customKey",
+          "sessionKey": "={{ $('Webhook').item.json.body.entry[0].id }}"
+        },
+        "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+        "typeVersion": 1.3,
+        "position": [
+          256,
+          224
+        ],
+        "id": "37ebc1bd-345c-48bb-9cac-62449c9f3999",
+        "name": "Simple Memory"
+      },
+      {
+        "parameters": {
+          "conditions": {
+            "options": {
+              "caseSensitive": true,
+              "leftValue": "",
+              "typeValidation": "strict",
+              "version": 3
+            },
+            "conditions": [
+              {
+                "id": "8e3691b5-81d0-4cf0-80a8-ffec3beb9653",
+                "leftValue": "={{ $json.query['hub.mode'] }}",
+                "rightValue": "=subscribe",
+                "operator": {
+                  "type": "string",
+                  "operation": "equals"
+                }
+              },
+              {
+                "id": "542c5afc-fc12-4d1a-a7d1-bcf83cea7a49",
+                "leftValue": "={{ $json.query['hub.verify_token'] }}",
+                "rightValue": "aloynium95",
+                "operator": {
+                  "type": "string",
+                  "operation": "equals"
+                }
+              }
+            ],
+            "combinator": "and"
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.if",
+        "typeVersion": 2.3,
+        "position": [
+          -336,
+          -192
+        ],
+        "id": "bd3329b6-0797-4e0b-8e50-83b5d7840e52",
+        "name": "If"
+      },
+      {
+        "parameters": {
+          "respondWith": "text",
+          "responseBody": "={{ $json.query['hub.challenge'] }}",
+          "options": {}
+        },
+        "type": "n8n-nodes-base.respondToWebhook",
+        "typeVersion": 1.5,
+        "position": [
+          -112,
+          -208
+        ],
+        "id": "93e03d03-3df2-4cd3-9a9b-28431039e5ae",
+        "name": "Respond to Webhook"
+      },
+      {
+        "parameters": {
+          "operation": "get",
+          "documentURL": "1aHkP4q-mMDX1xOLqcV_ACjRHVmBwjCzdrtircCmx_zM"
+        },
+        "type": "n8n-nodes-base.googleDocs",
+        "typeVersion": 2,
+        "position": [
+          -112,
+          0
+        ],
+        "id": "ff7b20d6-49d5-4c26-a3a2-01340162d685",
+        "name": "Get a document",
+        "credentials": {
+          "googleDocsOAuth2Api": {
+            "id": "HMVbLE5B3YUgA2GK",
+            "name": "Google Docs account"
+          }
+        }
+      },
+      {
+        "parameters": {},
+        "type": "n8n-nodes-base.manualTrigger",
+        "typeVersion": 1,
+        "position": [
+          -560,
+          336
+        ],
+        "id": "650fe346-b92d-43e6-8c52-b49d908cf999",
+        "name": "When clicking ‘Execute workflow’",
+        "disabled": true
+      },
+      {
+        "parameters": {
+          "operation": "get",
+          "documentURL": "1aHkP4q-mMDX1xOLqcV_ACjRHVmBwjCzdrtircCmx_zM"
+        },
+        "type": "n8n-nodes-base.googleDocs",
+        "typeVersion": 2,
+        "position": [
+          -336,
+          336
+        ],
+        "id": "b2f6aaa6-4163-4576-8e70-693e07324a0d",
+        "name": "Get a document1",
+        "credentials": {
+          "googleDocsOAuth2Api": {
+            "id": "HMVbLE5B3YUgA2GK",
+            "name": "Google Docs account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "multipleMethods": true,
+          "path": "d60d93d4-8e9c-46f0-b73b-215be8460d3a",
+          "responseMode": "responseNode",
+          "options": {}
+        },
+        "type": "n8n-nodes-base.webhook",
+        "typeVersion": 2.1,
+        "position": [
+          -560,
+          -96
+        ],
+        "id": "3d0bb736-b1c7-4b17-b8fd-a15da8990637",
+        "name": "Webhook",
+        "webhookId": "d60d93d4-8e9c-46f0-b73b-215be8460d3a"
+      },
+      {
+        "parameters": {
+          "method": "POST",
+          "url": "=https://graph.facebook.com/v24.0/{{ $('Webhook').item.json.body.entry[0].id }}/messages",
+          "sendQuery": true,
+          "queryParameters": {
+            "parameters": [
+              {
+                "name": "access_token",
+                "value": "EAAg5YR5xGfcBQqh4FZBSy3vSxfyuYPvuOoSnZBEOuHW313Bb5TEZAAakCwUnoLPX6DtjZA6tkWZBhj7xWTlNXt2yO9QqHBH27T25p6MRQnw0qlbpdYh7fV70pMFGBdav2T1Rb4IPqIBYSR2FkHvEZAXejZBgREGHlZBcLsXFfPmBbDdsUbQhU3889hI5q7aF3TGB0ovGcEwZD"
+              }
+            ]
+          },
+          "sendBody": true,
+          "specifyBody": "json",
+          "jsonBody": "={\n  \"recipient\": {\n    \"id\": \"{{ $('Webhook').item.json.body.entry[0].messaging[0].sender.id }}\"\n  },\n  \"messaging_type\": \"RESPONSE\",\n  \"message\": {\n    \"text\": {{ JSON.stringify($json.output.replace(/\\n/g,'\\\\n')) }}\n  }\n}",
+          "options": {}
+        },
+        "type": "n8n-nodes-base.httpRequest",
+        "typeVersion": 4.3,
+        "position": [
+          688,
+          -96
+        ],
+        "id": "be387405-49cb-417f-b4e5-66384b94c1b4",
+        "name": "HTTP Request"
+      },
+      {
+        "parameters": {
+          "conditions": {
+            "options": {
+              "caseSensitive": true,
+              "leftValue": "",
+              "typeValidation": "strict",
+              "version": 3
+            },
+            "conditions": [
+              {
+                "id": "af3a51fa-af44-46cf-9e4e-87ee3f0a5026",
+                "leftValue": "={{ $('Webhook').item.json.body.entry[0].messaging[0].message.text }}",
+                "rightValue": "",
+                "operator": {
+                  "type": "string",
+                  "operation": "exists",
+                  "singleValue": true
+                }
+              }
+            ],
+            "combinator": "and"
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.filter",
+        "typeVersion": 2.3,
+        "position": [
+          -336,
+          0
+        ],
+        "id": "ebe27ccd-839e-4b82-98df-360837927918",
+        "name": "Filter",
+        "alwaysOutputData": false
+      },
+      {
+        "parameters": {
+          "conditions": {
+            "options": {
+              "caseSensitive": true,
+              "leftValue": "",
+              "typeValidation": "strict",
+              "version": 3
+            },
+            "conditions": [
+              {
+                "id": "4b5ee81b-f095-4660-98d4-92b16e1b3084",
+                "leftValue": "={{ $json.output }}",
+                "rightValue": "",
+                "operator": {
+                  "type": "string",
+                  "operation": "exists",
+                  "singleValue": true
+                }
+              }
+            ],
+            "combinator": "and"
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.if",
+        "typeVersion": 2.3,
+        "position": [
+          464,
+          0
+        ],
+        "id": "003b5754-13e2-4d7f-8dc9-dbd35a7b8688",
+        "name": "If1"
+      },
+      {
+        "parameters": {
+          "method": "POST",
+          "url": "=https://graph.facebook.com/v24.0/{{ $('Webhook').item.json.body.entry[0].id }}/messages",
+          "sendQuery": true,
+          "queryParameters": {
+            "parameters": [
+              {
+                "name": "access_token",
+                "value": "EAAg5YR5xGfcBQqh4FZBSy3vSxfyuYPvuOoSnZBEOuHW313Bb5TEZAAakCwUnoLPX6DtjZA6tkWZBhj7xWTlNXt2yO9QqHBH27T25p6MRQnw0qlbpdYh7fV70pMFGBdav2T1Rb4IPqIBYSR2FkHvEZAXejZBgREGHlZBcLsXFfPmBbDdsUbQhU3889hI5q7aF3TGB0ovGcEwZD"
+              }
+            ]
+          },
+          "sendBody": true,
+          "specifyBody": "json",
+          "jsonBody": "={\n  \"recipient\": {\n    \"id\": \"{{ $('Webhook').item.json.body.entry[0].messaging[0].sender.id }}\"\n  },\n  \"messaging_type\": \"RESPONSE\",\n  \"message\": {\n    \"text\": \"Failed to analyze the message! \nReturning sender message: {{ $('Webhook').item.json.body.entry[0].messaging[0].message.text }}\"\n  }\n}",
+          "options": {}
+        },
+        "type": "n8n-nodes-base.httpRequest",
+        "typeVersion": 4.3,
+        "position": [
+          688,
+          144
+        ],
+        "id": "3b9ce2a9-5e32-434b-8b67-13be4d1522e3",
+        "name": "HTTP Request1"
+      },
+      {
+        "parameters": {
+          "model": "=llama3.2",
+          "options": {}
+        },
+        "type": "@n8n/n8n-nodes-langchain.lmChatOllama",
+        "typeVersion": 1,
+        "position": [
+          128,
+          224
+        ],
+        "id": "edbefde5-879b-446b-8d1b-6a936f51752d",
+        "name": "Ollama Chat Model",
+        "credentials": {
+          "ollamaApi": {
+            "id": "NHESrYKSDeELVzJh",
+            "name": "Ollama account"
+          }
+        },
+        "disabled": true
+      },
+      {
+        "parameters": {
+          "model": {
+            "__rl": true,
+            "mode": "list",
+            "value": "gpt-4.1-mini"
+          },
+          "builtInTools": {},
+          "options": {}
+        },
+        "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+        "typeVersion": 1.3,
+        "position": [
+          -560,
+          560
+        ],
+        "id": "a5aae837-6157-492b-b13d-eb238cf73df6",
+        "name": "OpenAI Chat Model",
+        "credentials": {
+          "openAiApi": {
+            "id": "tsVfJO78DmVLQZwo",
+            "name": "OpenAi account"
+          }
+        },
+        "disabled": true
+      },
+      {
+        "parameters": {
+          "model": "x-ai/grok-4.1-fast",
+          "options": {}
+        },
+        "type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
+        "typeVersion": 1,
+        "position": [
+          16,
+          208
+        ],
+        "id": "89dc3e3b-c0c9-49c6-9045-7dbb40c63e1c",
+        "name": "OpenRouter Chat Model",
+        "credentials": {
+          "openRouterApi": {
+            "id": "7S9cKMewYvD9pDt8",
+            "name": "OpenRouter account"
+          }
+        }
+      }
+    ],
+    "connections": {
+      "AI Agent": {
+        "main": [
+          [
+            {
+              "node": "If1",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Google Gemini Chat Model": {
+        "ai_languageModel": [
+          []
+        ]
+      },
+      "Simple Memory": {
+        "ai_memory": [
+          [
+            {
+              "node": "AI Agent",
+              "type": "ai_memory",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "If": {
+        "main": [
+          [
+            {
+              "node": "Respond to Webhook",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Get a document": {
+        "main": [
+          [
+            {
+              "node": "AI Agent",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "When clicking ‘Execute workflow’": {
+        "main": [
+          [
+            {
+              "node": "Get a document1",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Webhook": {
+        "main": [
+          [
+            {
+              "node": "If",
+              "type": "main",
+              "index": 0
+            }
+          ],
+          [
+            {
+              "node": "Filter",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Filter": {
+        "main": [
+          [
+            {
+              "node": "Get a document",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "If1": {
+        "main": [
+          [
+            {
+              "node": "HTTP Request",
+              "type": "main",
+              "index": 0
+            }
+          ],
+          [
+            {
+              "node": "HTTP Request1",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Ollama Chat Model": {
+        "ai_languageModel": [
+          []
+        ]
+      },
+      "OpenAI Chat Model": {
+        "ai_languageModel": [
+          []
+        ]
+      },
+      "OpenRouter Chat Model": {
+        "ai_languageModel": [
+          [
+            {
+              "node": "AI Agent",
+              "type": "ai_languageModel",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    },
+    "authors": "Christopher Christian Cosingan",
+    "name": "Version 49023eb2",
+    "description": "",
+    "autosaved": true
+  },
+  "activeVersionId": "49023eb2-16cb-4c4a-8fba-db59ae9ea867",
+  "connections": {
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "If1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get a document": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Filter",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Filter": {
+      "main": [
+        [
+          {
+            "node": "Get a document",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If1": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "HTTP Request1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Ollama Chat Model": {
+      "ai_languageModel": [
+        []
+      ]
+    },
+    "OpenRouter Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "createdAt": "2026-01-24T09:44:12.192Z",
+  "id": "9PX4g_rVlcThRbFZ_5Z0Q",
+  "isArchived": false,
+  "meta": {
+    "templateCredsSetupCompleted": true
+  },
+  "name": "Messenger AI Agent",
+  "nodes": [
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=You’re a helpful AI assistant for Technical Virtual Assistants PH, an online platform that trains people to become skilled technical virtual assistant.\n\nReply to customer questions using only the info in the knowledge base below. Be clear, friendly, and keep answers short but informative – no fluff or guessing.\n\nDO:\nGive clear, complete answers using the knowledge base.\nBe friendly and jolly.\n\nDON’T (AND IMPORTANT):\nMake up answers.\nAdd any greetings (Hello, Hi, etc.).\nReturn an empty response.\n\nAnswer questions not covered in the knowledge base – suggest they contact support instead, or answer it on your own.\n\nKnowledge Base:\n{{ $json.content }}\n\nCustomer Questions:\n{{ $('Webhook').item.json.body.entry[0].messaging[0].message.text }}",
+        "hasOutputParser": true,
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        112,
+        -16
+      ],
+      "id": "896c21f1-7993-4f6f-87ac-4a1c1eb912ca",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "={{ $('Webhook').item.json.body.entry[0].id }}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        248,
+        208
+      ],
+      "id": "37ebc1bd-345c-48bb-9cac-62449c9f3999",
+      "name": "Simple Memory"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "8e3691b5-81d0-4cf0-80a8-ffec3beb9653",
+              "leftValue": "={{ $json.query['hub.mode'] }}",
+              "rightValue": "=subscribe",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            },
+            {
+              "id": "542c5afc-fc12-4d1a-a7d1-bcf83cea7a49",
+              "leftValue": "={{ $json.query['hub.verify_token'] }}",
+              "rightValue": "aloynium95",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        -336,
+        -208
+      ],
+      "id": "bd3329b6-0797-4e0b-8e50-83b5d7840e52",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "respondWith": "text",
+        "responseBody": "={{ $json.query['hub.challenge'] }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        -112,
+        -208
+      ],
+      "id": "93e03d03-3df2-4cd3-9a9b-28431039e5ae",
+      "name": "Respond to Webhook"
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "documentURL": "1aHkP4q-mMDX1xOLqcV_ACjRHVmBwjCzdrtircCmx_zM"
+      },
+      "type": "n8n-nodes-base.googleDocs",
+      "typeVersion": 2,
+      "position": [
+        -112,
+        -16
+      ],
+      "id": "ff7b20d6-49d5-4c26-a3a2-01340162d685",
+      "name": "Get a document",
+      "credentials": {
+        "googleDocsOAuth2Api": {
+          "id": "HMVbLE5B3YUgA2GK",
+          "name": "Google Docs account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "multipleMethods": true,
+        "path": "d60d93d4-8e9c-46f0-b73b-215be8460d3a",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        -560,
+        -112
+      ],
+      "id": "3d0bb736-b1c7-4b17-b8fd-a15da8990637",
+      "name": "Webhook",
+      "webhookId": "d60d93d4-8e9c-46f0-b73b-215be8460d3a"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://graph.facebook.com/v24.0/{{ $('Webhook').item.json.body.entry[0].id }}/messages",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "access_token",
+              "value": "EAAg5YR5xGfcBQqh4FZBSy3vSxfyuYPvuOoSnZBEOuHW313Bb5TEZAAakCwUnoLPX6DtjZA6tkWZBhj7xWTlNXt2yO9QqHBH27T25p6MRQnw0qlbpdYh7fV70pMFGBdav2T1Rb4IPqIBYSR2FkHvEZAXejZBgREGHlZBcLsXFfPmBbDdsUbQhU3889hI5q7aF3TGB0ovGcEwZD"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"recipient\": {\n    \"id\": \"{{ $('Webhook').item.json.body.entry[0].messaging[0].sender.id }}\"\n  },\n  \"messaging_type\": \"RESPONSE\",\n  \"message\": {\n    \"text\": {{ JSON.stringify($json.output.replace(/\\n/g,'\\\\n')) }}\n  }\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        688,
+        -112
+      ],
+      "id": "be387405-49cb-417f-b4e5-66384b94c1b4",
+      "name": "HTTP Request"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "af3a51fa-af44-46cf-9e4e-87ee3f0a5026",
+              "leftValue": "={{ $('Webhook').item.json.body.entry[0].messaging[0].message.text }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "exists",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.filter",
+      "typeVersion": 2.3,
+      "position": [
+        -336,
+        -16
+      ],
+      "id": "ebe27ccd-839e-4b82-98df-360837927918",
+      "name": "Filter",
+      "alwaysOutputData": false
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "4b5ee81b-f095-4660-98d4-92b16e1b3084",
+              "leftValue": "={{ $json.output }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "exists",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        464,
+        -16
+      ],
+      "id": "003b5754-13e2-4d7f-8dc9-dbd35a7b8688",
+      "name": "If1"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://graph.facebook.com/v24.0/{{ $('Webhook').item.json.body.entry[0].id }}/messages",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "access_token",
+              "value": "EAAg5YR5xGfcBQqh4FZBSy3vSxfyuYPvuOoSnZBEOuHW313Bb5TEZAAakCwUnoLPX6DtjZA6tkWZBhj7xWTlNXt2yO9QqHBH27T25p6MRQnw0qlbpdYh7fV70pMFGBdav2T1Rb4IPqIBYSR2FkHvEZAXejZBgREGHlZBcLsXFfPmBbDdsUbQhU3889hI5q7aF3TGB0ovGcEwZD"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"recipient\": {\n    \"id\": \"{{ $('Webhook').item.json.body.entry[0].messaging[0].sender.id }}\"\n  },\n  \"messaging_type\": \"RESPONSE\",\n  \"message\": {\n    \"text\": \"Failed to analyze the message! \nReturning sender message: {{ $('Webhook').item.json.body.entry[0].messaging[0].message.text }}\"\n  }\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        688,
+        80
+      ],
+      "id": "3b9ce2a9-5e32-434b-8b67-13be4d1522e3",
+      "name": "HTTP Request1"
+    },
+    {
+      "parameters": {
+        "model": "=llama3.2",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOllama",
+      "typeVersion": 1,
+      "position": [
+        -16,
+        208
+      ],
+      "id": "edbefde5-879b-446b-8d1b-6a936f51752d",
+      "name": "Ollama Chat Model",
+      "credentials": {
+        "ollamaApi": {
+          "id": "NHESrYKSDeELVzJh",
+          "name": "Ollama account"
+        }
+      },
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "model": "x-ai/grok-4.1-fast",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
+      "typeVersion": 1,
+      "position": [
+        120,
+        208
+      ],
+      "id": "89dc3e3b-c0c9-49c6-9045-7dbb40c63e1c",
+      "name": "OpenRouter Chat Model",
+      "credentials": {
+        "openRouterApi": {
+          "id": "7S9cKMewYvD9pDt8",
+          "name": "OpenRouter account"
+        }
+      }
+    }
+  ],
+  "pinData": {
+    "Webhook": [
+      {
+        "json": {
+          "headers": {
+            "host": "n8n.srv1284548.hstgr.cloud",
+            "user-agent": "facebookexternalua",
+            "content-length": "222",
+            "accept": "*/*",
+            "accept-encoding": "deflate, gzip",
+            "content-type": "application/json",
+            "facebook-api-version": "v24.0",
+            "x-forwarded-for": "172.18.0.1",
+            "x-forwarded-host": "n8n.srv1284548.hstgr.cloud",
+            "x-forwarded-port": "443",
+            "x-forwarded-proto": "https",
+            "x-forwarded-server": "fef8fafc008f",
+            "x-hub-signature": "sha1=5067f3f615714163f1bfc35069f7bd70ad8005f4",
+            "x-hub-signature-256": "sha256=71fb4427b48e4d3d18613283c1cadb6eced3bc7f82c9a0ca381c479256e94135",
+            "x-real-ip": "172.18.0.1"
+          },
+          "params": {},
+          "query": {},
+          "body": {
+            "object": "page",
+            "entry": [
+              {
+                "time": 1769271216015,
+                "id": "315580121630984",
+                "messaging": [
+                  {
+                    "sender": {
+                      "id": "7783103295066291"
+                    },
+                    "recipient": {
+                      "id": "315580121630984"
+                    },
+                    "timestamp": 1769271215530,
+                    "read": {
+                      "watermark": 1769271215011
+                    }
+                  }
+                ]
+              }
+            ]
+          },
+          "webhookUrl": "https://n8n.srv1284548.hstgr.cloud/webhook/d60d93d4-8e9c-46f0-b73b-215be8460d3a",
+          "executionMode": "production"
+        },
+        "pairedItem": {
+          "item": 0,
+          "input": 1
+        }
+      }
+    ]
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "availableInMCP": false
+  },
+  "shared": [
+    {
+      "updatedAt": "2026-01-24T09:44:12.196Z",
+      "createdAt": "2026-01-24T09:44:12.196Z",
+      "role": "workflow:owner",
+      "workflowId": "9PX4g_rVlcThRbFZ_5Z0Q",
+      "projectId": "xjoV5aejNHZgjiXo"
+    }
+  ],
+  "staticData": null,
+  "tags": [],
+  "triggerCount": 1,
+  "updatedAt": "2026-02-03T10:19:35.350Z",
+  "versionId": "5814faee-6c23-42aa-9ff3-fe6a41c38fb8"
+}
