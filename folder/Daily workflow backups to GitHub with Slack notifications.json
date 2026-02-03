@@ -955,7 +955,7 @@
       "name": "Return",
       "type": "n8n-nodes-base.set",
       "position": [
-        3760,
+        3776,
         416
       ],
       "typeVersion": 3.3
@@ -1005,7 +1005,7 @@
       "name": "Create new file",
       "type": "n8n-nodes-base.github",
       "position": [
-        3536,
+        3520,
         240
       ],
       "webhookId": "b440dead-fad0-4546-8ca7-201aa2ea2936",
@@ -1039,7 +1039,7 @@
       "name": "Edit existing file",
       "type": "n8n-nodes-base.github",
       "position": [
-        3536,
+        3520,
         48
       ],
       "webhookId": "1dfc4103-7c23-4814-a0b5-dd4f5a96d36b",
@@ -1470,6 +1470,6 @@
   "staticData": null,
   "tags": [],
   "triggerCount": 1,
-  "updatedAt": "2026-02-03T10:24:53.949Z",
-  "versionId": "d6443a2e-908a-4aa8-8fe4-fdae4d0ea25b"
+  "updatedAt": "2026-02-03T10:29:04.256Z",
+  "versionId": "621d2b59-c824-451e-bf32-13f8910f76b5"
 }
