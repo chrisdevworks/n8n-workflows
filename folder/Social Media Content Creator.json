@@ -1,0 +1,2309 @@
+{
+  "active": true,
+  "activeVersion": {
+    "updatedAt": "2026-02-03T10:54:22.000Z",
+    "createdAt": "2026-02-01T23:54:13.010Z",
+    "versionId": "bd896b7d-8c7b-40b9-97ed-b5569706d4e8",
+    "workflowId": "1r5F1S83e7bBUHbU5WId9",
+    "nodes": [
+      {
+        "parameters": {
+          "rule": {
+            "interval": [
+              {
+                "triggerAtHour": 5
+              }
+            ]
+          }
+        },
+        "type": "n8n-nodes-base.scheduleTrigger",
+        "typeVersion": 1.3,
+        "position": [
+          -208,
+          -64
+        ],
+        "id": "c4c836db-81b5-4318-a9ee-a392e2220e1f",
+        "name": "Schedule Trigger"
+      },
+      {
+        "parameters": {
+          "promptType": "define",
+          "text": "You are a daily inspirational quote generator. Your task is to create and save a unique 5-word inspirational quote every time this task runs (ideally once per day).\n\nRules:\n1. The quote must be exactly 5 words long.\n2. It must be original, positive, and inspirational.\n3. Do NOT use any quotation marks in the quote itself.\n4. Before finalizing, check the attached spreadsheet for previously saved quotes.\n\nSpreadsheet instructions:\n- The spreadsheet has at least one column (preferably Column A) that contains all previously saved quotes, one quote per row.\n- Read all existing rows in Column A to retrieve the list of past quotes.\n\nDuplicate check:\n- Compare the newly generated 5-word quote against every existing quote in the spreadsheet.\n- Consider two quotes as duplicates or too similar if:\n  - They are exactly the same (case-insensitive), OR\n  - They contain the same words in the same order (ignoring minor punctuation differences), OR\n  - They are extremely similar in meaning and wording (use your judgment to avoid near-duplicates).\n\nGeneration loop:\n- Generate a candidate 5-word inspirational quote.\n- Check it against all existing quotes in the spreadsheet.\n- If it is unique (no exact match and not too similar), proceed to save it.\n- If it already exists or is too similar, generate a completely new 5-word quote and check again.\n- Repeat this process until you have a truly unique quote.\n\nFinal saving and output:\n- Once you have a unique quote:\n  - Append it as a new row in the spreadsheet (Column A: the quote).\n  - Add the current date in Column B of the same row (format: YYYY-MM-DD).\n- After successfully saving the quote to the spreadsheet, your response must consist of ONLY the exact 5-word quote (nothing else — no labels, no prefixes, no dates, no extra text, no newlines before or after).\n\nExample of valid 5-word quotes:\n- Believe in your inner strength\n- Rise above every challenge today\n- Embrace the possibilities within you\n- Courage grows with every step\n- Dream big and dare greatly\n\nStrictly output only the 5-word quote. Do not add anything else.",
+          "options": {}
+        },
+        "type": "@n8n/n8n-nodes-langchain.agent",
+        "typeVersion": 3.1,
+        "position": [
+          80,
+          -64
+        ],
+        "id": "0fff2bd7-ee35-43c7-8bc0-e5bbe4f89067",
+        "name": "Generate Caption"
+      },
+      {
+        "parameters": {
+          "documentId": {
+            "__rl": true,
+            "value": "1_xkgKh4rBHfOfrTH3lolAokElHmdcyh63K0NCg7uUD4",
+            "mode": "list",
+            "cachedResultName": "N8N Qoute List",
+            "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1_xkgKh4rBHfOfrTH3lolAokElHmdcyh63K0NCg7uUD4/edit?usp=drivesdk"
+          },
+          "sheetName": {
+            "__rl": true,
+            "value": "gid=0",
+            "mode": "list",
+            "cachedResultName": "Qoutes",
+            "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1_xkgKh4rBHfOfrTH3lolAokElHmdcyh63K0NCg7uUD4/edit#gid=0"
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.googleSheetsTool",
+        "typeVersion": 4.7,
+        "position": [
+          144,
+          176
+        ],
+        "id": "2f4fcd68-318f-403f-a888-06a5966d0ecd",
+        "name": "Check if Quote is already used",
+        "credentials": {
+          "googleSheetsOAuth2Api": {
+            "id": "eoMqcHVYVy8MoSYF",
+            "name": "Google Sheets account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "cityName": "iligan,ph",
+          "language": "en"
+        },
+        "type": "n8n-nodes-base.openWeatherMap",
+        "typeVersion": 1,
+        "position": [
+          432,
+          -64
+        ],
+        "id": "981deaaa-f025-4164-9099-6155af5965dc",
+        "name": "OpenWeatherMap",
+        "credentials": {
+          "openWeatherMapApi": {
+            "id": "ofoNzLBtq0345mXk",
+            "name": "OpenWeatherMap account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "operation": "append",
+          "documentId": {
+            "__rl": true,
+            "value": "1_xkgKh4rBHfOfrTH3lolAokElHmdcyh63K0NCg7uUD4",
+            "mode": "list",
+            "cachedResultName": "N8N Qoute List",
+            "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1_xkgKh4rBHfOfrTH3lolAokElHmdcyh63K0NCg7uUD4/edit?usp=drivesdk"
+          },
+          "sheetName": {
+            "__rl": true,
+            "value": "gid=0",
+            "mode": "list",
+            "cachedResultName": "Qoutes",
+            "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1_xkgKh4rBHfOfrTH3lolAokElHmdcyh63K0NCg7uUD4/edit#gid=0"
+          },
+          "columns": {
+            "mappingMode": "defineBelow",
+            "value": {
+              "Qoute Content": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Qoute_Content', ``, 'string') }}",
+              "Date Posted": "={{ $json['Readable date'] }}"
+            },
+            "matchingColumns": [],
+            "schema": [
+              {
+                "id": "Qoute Content",
+                "displayName": "Qoute Content",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true
+              },
+              {
+                "id": "Date Posted",
+                "displayName": "Date Posted",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true,
+                "removed": false
+              }
+            ],
+            "attemptToConvertTypes": false,
+            "convertFieldsToString": false
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.googleSheetsTool",
+        "typeVersion": 4.7,
+        "position": [
+          272,
+          176
+        ],
+        "id": "2fae517b-67ae-49b3-8310-25ac714327d0",
+        "name": "Add Quote to Google Sheet",
+        "credentials": {
+          "googleSheetsOAuth2Api": {
+            "id": "eoMqcHVYVy8MoSYF",
+            "name": "Google Sheets account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "resource": "image",
+          "modelId": {
+            "__rl": true,
+            "value": "models/gemini-2.5-flash-image",
+            "mode": "list",
+            "cachedResultName": "models/gemini-2.5-flash-image (Nano Banana)"
+          },
+          "options": {}
+        },
+        "type": "@n8n/n8n-nodes-langchain.googleGemini",
+        "typeVersion": 1.1,
+        "position": [
+          976,
+          -672
+        ],
+        "id": "d991d5dc-52eb-4fd9-b018-69fded6c4a64",
+        "name": "Generate an image",
+        "credentials": {
+          "googlePalmApi": {
+            "id": "q2OL1kDs7kbTbaP4",
+            "name": "Google Gemini(PaLM) Api account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "operation": "binaryToPropery",
+          "options": {}
+        },
+        "type": "n8n-nodes-base.extractFromFile",
+        "typeVersion": 1.1,
+        "position": [
+          976,
+          -448
+        ],
+        "id": "7a3cb702-5b3d-4358-ba23-62697d98edc5",
+        "name": "Extract from File"
+      },
+      {
+        "parameters": {
+          "options": {}
+        },
+        "type": "n8n-nodes-base.facebookGraphApi",
+        "typeVersion": 1,
+        "position": [
+          1424,
+          -448
+        ],
+        "id": "a0162c88-3e89-484c-a0d0-24dec4dbbea5",
+        "name": "Facebook Graph API1",
+        "credentials": {
+          "facebookGraphApi": {
+            "id": "Ov4dZUnI7ypg74W3",
+            "name": "Facebook Access Lifetime"
+          }
+        },
+        "disabled": true
+      },
+      {
+        "parameters": {
+          "method": "POST",
+          "options": {}
+        },
+        "type": "n8n-nodes-base.httpRequest",
+        "typeVersion": 4.3,
+        "position": [
+          1200,
+          -672
+        ],
+        "id": "184d0abf-1c1b-4821-9773-44d2c81e2819",
+        "name": "Generate Background Image",
+        "disabled": true
+      },
+      {
+        "parameters": {
+          "method": "POST",
+          "options": {}
+        },
+        "type": "n8n-nodes-base.httpRequest",
+        "typeVersion": 4.3,
+        "position": [
+          1424,
+          -672
+        ],
+        "id": "f0743ca4-235d-4fa1-b2d9-6cb074aebe7b",
+        "name": "Generate Weather Icon",
+        "disabled": true
+      },
+      {
+        "parameters": {
+          "method": "POST",
+          "options": {}
+        },
+        "type": "n8n-nodes-base.httpRequest",
+        "typeVersion": 4.3,
+        "position": [
+          1648,
+          -672
+        ],
+        "id": "27528003-9f09-4f49-b7e4-b47261c638c4",
+        "name": "Generate Final Image",
+        "disabled": true
+      },
+      {
+        "parameters": {
+          "method": "POST",
+          "options": {}
+        },
+        "type": "n8n-nodes-base.httpRequest",
+        "typeVersion": 4.3,
+        "position": [
+          1200,
+          -448
+        ],
+        "id": "097f7cee-ed22-40c6-b567-e293bb0fc75b",
+        "name": "HTTP Request2",
+        "disabled": true
+      },
+      {
+        "parameters": {
+          "method": "POST",
+          "options": {}
+        },
+        "type": "n8n-nodes-base.httpRequest",
+        "typeVersion": 4.3,
+        "position": [
+          1648,
+          -448
+        ],
+        "id": "e1bcc394-ba34-4462-87fa-b9c0b6874c4c",
+        "name": "Save Image to imgbb.com",
+        "disabled": true
+      },
+      {
+        "parameters": {
+          "toolDescription": "=Make a google search with query: {{ $json.weather[0].description }} {{ $json.name }}",
+          "url": "=https://cse.google.com/cse",
+          "sendQuery": true,
+          "queryParameters": {
+            "parameters": [
+              {
+                "name": "key",
+                "value": "AIzaSyCl-tmJ3I_a0xuKeQO4Wn9ryKXB1i1KAiA"
+              },
+              {
+                "name": "cx",
+                "value": "3247a1f18bcef493c"
+              },
+              {
+                "name": "sort",
+                "value": "date"
+              },
+              {
+                "name": "q",
+                "value": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('parameters3_Value', `Create a custom search parameter for a weather forecast you will generate.\n\nExample: overcast clouds weather`, 'string') }}"
+              },
+              {
+                "name": "siteSearch",
+                "value": "pixabay.com"
+              }
+            ]
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.httpRequestTool",
+        "typeVersion": 4.3,
+        "position": [
+          896,
+          176
+        ],
+        "id": "141339e4-4df7-4832-85f1-44f3ee54e94c",
+        "name": "Background Image"
+      },
+      {
+        "parameters": {
+          "promptType": "define",
+          "text": "=You are an AI Agent tasked with retrieving a unique image URL from a connected tool and saving it to a connected spreadsheet for a weather forecast Facebook post. Follow these steps:\n\n1. **Retrieve Image URL**: Obtain an image URL from the connected tool that visually represents \"overcast clouds\".\n\n2. **Check for Uniqueness**: Access the connected spreadsheet and review all existing image URLs in the rows. Verify that the retrieved URL is not identical to any previously saved URLs.\n\n3. **Handle Duplicates**: If the retrieved URL already exists in the spreadsheet, request a new image URL from the connected tool and repeat the uniqueness check until a unique URL is obtained.\n\n4. **Save the URL**: Once a unique image URL is confirmed, append it to the next available row in the connected spreadsheet.\n\n5. **Generate Explanation**: Provide a 17-word explanation what is the meaning of the \"{{ $json.weather[0].description }}\" for our Facebook post about weather forecast.\n\n6. **Output**: Return the unique image URL and 17-word explanation to the user.\n\n\nExample Output:\n{\n  \"imageURL\":\"https://example.com/overcast_clouds.jpg\",\n  \"weatherForecast\":\"Overcast clouds blanket the sky, creating a gray, gloomy, atmosphere, often signalling rain or dizzle soon.\"\n}",
+          "hasOutputParser": true,
+          "options": {}
+        },
+        "type": "@n8n/n8n-nodes-langchain.agent",
+        "typeVersion": 3.1,
+        "position": [
+          960,
+          -64
+        ],
+        "id": "75900c1c-ad1f-436b-bcb3-19d4a5083c50",
+        "name": "Get Background Image and Weather Forecast",
+        "disabled": true
+      },
+      {
+        "parameters": {
+          "jsonSchemaExample": "{\n  \"imageURL\":\"https://example.com/overcast_clouds.jpg\",\n  \"weatherForecast\":\"Overcast clouds blanket the sky, creating a gray, gloomy, atmosphere, often signalling rain or dizzle soon.\"\n}"
+        },
+        "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+        "typeVersion": 1.3,
+        "position": [
+          1280,
+          176
+        ],
+        "id": "df20ac80-ca6b-41d9-841d-2795f2b801aa",
+        "name": "Structured Output Parser"
+      },
+      {
+        "parameters": {
+          "documentId": {
+            "__rl": true,
+            "value": "1_xkgKh4rBHfOfrTH3lolAokElHmdcyh63K0NCg7uUD4",
+            "mode": "list",
+            "cachedResultName": "N8N Qoute & Image List",
+            "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1_xkgKh4rBHfOfrTH3lolAokElHmdcyh63K0NCg7uUD4/edit?usp=drivesdk"
+          },
+          "sheetName": {
+            "__rl": true,
+            "value": 469449467,
+            "mode": "list",
+            "cachedResultName": "Images",
+            "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1_xkgKh4rBHfOfrTH3lolAokElHmdcyh63K0NCg7uUD4/edit#gid=469449467"
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.googleSheetsTool",
+        "typeVersion": 4.7,
+        "position": [
+          1024,
+          176
+        ],
+        "id": "428ef2ef-d420-4f57-bfa8-ad7b906881d9",
+        "name": "Check if image URL is already used",
+        "credentials": {
+          "googleSheetsOAuth2Api": {
+            "id": "eoMqcHVYVy8MoSYF",
+            "name": "Google Sheets account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "operation": "append",
+          "documentId": {
+            "__rl": true,
+            "value": "1_xkgKh4rBHfOfrTH3lolAokElHmdcyh63K0NCg7uUD4",
+            "mode": "list",
+            "cachedResultName": "N8N Qoute & Image List",
+            "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1_xkgKh4rBHfOfrTH3lolAokElHmdcyh63K0NCg7uUD4/edit?usp=drivesdk"
+          },
+          "sheetName": {
+            "__rl": true,
+            "value": 469449467,
+            "mode": "list",
+            "cachedResultName": "Images",
+            "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1_xkgKh4rBHfOfrTH3lolAokElHmdcyh63K0NCg7uUD4/edit#gid=469449467"
+          },
+          "columns": {
+            "mappingMode": "defineBelow",
+            "value": {
+              "Image URL": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Image_URL', ``, 'string') }}"
+            },
+            "matchingColumns": [
+              "Image URL"
+            ],
+            "schema": [
+              {
+                "id": "Image URL",
+                "displayName": "Image URL",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true,
+                "removed": false
+              }
+            ],
+            "attemptToConvertTypes": false,
+            "convertFieldsToString": false
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.googleSheetsTool",
+        "typeVersion": 4.7,
+        "position": [
+          1152,
+          176
+        ],
+        "id": "c8f01fab-8589-4571-b9d6-6446b5c9e55e",
+        "name": "Save Image URL",
+        "credentials": {
+          "googleSheetsOAuth2Api": {
+            "id": "eoMqcHVYVy8MoSYF",
+            "name": "Google Sheets account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "options": {}
+        },
+        "type": "@n8n/n8n-nodes-langchain.lmChatOllama",
+        "typeVersion": 1,
+        "position": [
+          -208,
+          272
+        ],
+        "id": "ca988f59-fce8-4d73-9d35-4124751a55fe",
+        "name": "Ollama Chat Model",
+        "credentials": {
+          "ollamaApi": {
+            "id": "NHESrYKSDeELVzJh",
+            "name": "Ollama account"
+          }
+        },
+        "disabled": true
+      },
+      {
+        "parameters": {
+          "model": "openai/gpt-4o-mini",
+          "options": {}
+        },
+        "type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
+        "typeVersion": 1,
+        "position": [
+          16,
+          176
+        ],
+        "id": "e109b997-ee5d-4666-9ead-2ac8ecf8390f",
+        "name": "OpenRouter Chat Model",
+        "credentials": {
+          "openRouterApi": {
+            "id": "7S9cKMewYvD9pDt8",
+            "name": "OpenRouter account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "method": "POST",
+          "url": "https://render.imejis.io/v1/mhc1ouCdzWN5dGIebC9KG",
+          "sendHeaders": true,
+          "headerParameters": {
+            "parameters": [
+              {
+                "name": "dma-api-key",
+                "value": "eF68HFb3HvNuTE7RckOt0"
+              },
+              {
+                "name": "Content-Type",
+                "value": "application/json"
+              }
+            ]
+          },
+          "sendBody": true,
+          "specifyBody": "json",
+          "jsonBody": "={\n  \"background_image\": {\n    \"image\": \"{{ $json.output.imageURL }}\",\n    \"opacity\": 1,\n    \"borderColor\": \"transparent\"\n  },\n  \"city_country\": {\n    \"text\": \"{{ $('OpenWeatherMap').item.json.name }}, Philippines\",\n    \"color\": \"#ffffff\",\n    \"backgroundColor\": \"transparent\",\n    \"textBackgroundColor\": \"transparent\",\n    \"borderColor\": \"transparent\",\n    \"strokeColor\": \"transparent\"\n  },\n  \"temperature\": {\n    \"text\": \"{{ $('OpenWeatherMap').item.json.main.temp.toFixed() }}°C\",\n    \"color\": \"#ffffff\",\n    \"backgroundColor\": \"transparent\",\n    \"textBackgroundColor\": \"transparent\",\n    \"borderColor\": \"transparent\",\n    \"strokeColor\": \"transparent\"\n  },\n  \"weather_forecast\": {\n    \"text\": \"{{ $json.output.weatherForecast }}\",\n    \"color\": \"#ffffff\",\n    \"backgroundColor\": \"transparent\",\n    \"textBackgroundColor\": \"transparent\",\n    \"borderColor\": \"transparent\",\n    \"strokeColor\": \"transparent\"\n  },\n  \"quote_here\": {\n    \"text\": \"{{ $('Generate Caption').item.json.output }}\",\n    \"color\": \"#ffffff\",\n    \"backgroundColor\": \"transparent\",\n    \"textBackgroundColor\": \"transparent\",\n    \"borderColor\": \"transparent\",\n    \"strokeColor\": \"transparent\",\n    \"fontFamily\": \"Montserrat\"\n  }\n}\n",
+          "options": {}
+        },
+        "type": "n8n-nodes-base.httpRequest",
+        "typeVersion": 4.3,
+        "position": [
+          1296,
+          -64
+        ],
+        "id": "4fb155ab-b80a-46e1-861e-0f52849ecc30",
+        "name": "HTTP Request",
+        "disabled": true
+      },
+      {
+        "parameters": {
+          "httpRequestMethod": "POST",
+          "graphApiVersion": "v23.0",
+          "node": "me",
+          "edge": "photos",
+          "sendBinaryData": true,
+          "binaryPropertyName": "data",
+          "options": {
+            "queryParameters": {
+              "parameter": [
+                {
+                  "name": "message"
+                }
+              ]
+            }
+          }
+        },
+        "type": "n8n-nodes-base.facebookGraphApi",
+        "typeVersion": 1,
+        "position": [
+          1584,
+          -64
+        ],
+        "id": "06549e82-aba7-46f7-a0c0-d9997cc71d07",
+        "name": "Facebook Graph API2",
+        "credentials": {
+          "facebookGraphApi": {
+            "id": "Ov4dZUnI7ypg74W3",
+            "name": "Facebook Access Lifetime"
+          }
+        },
+        "disabled": true
+      },
+      {
+        "parameters": {
+          "content": "## Paid Method with NanoBanana",
+          "height": 512,
+          "width": 1296
+        },
+        "type": "n8n-nodes-base.stickyNote",
+        "typeVersion": 1,
+        "position": [
+          704,
+          -736
+        ],
+        "id": "e5bfe106-68a9-43eb-bb26-e1358cbba8b8",
+        "name": "Sticky Note"
+      },
+      {
+        "parameters": {
+          "content": "## Free Method with OpenRouter, Google Search Query and Pixabay",
+          "height": 544,
+          "width": 1296,
+          "color": 4
+        },
+        "type": "n8n-nodes-base.stickyNote",
+        "position": [
+          704,
+          -160
+        ],
+        "typeVersion": 1,
+        "id": "c778e52a-7d04-4cf6-be90-67f0695b92c6",
+        "name": "Sticky Note1"
+      },
+      {
+        "parameters": {
+          "content": "## Free Method with Horde API",
+          "height": 656,
+          "width": 1296,
+          "color": 5
+        },
+        "type": "n8n-nodes-base.stickyNote",
+        "position": [
+          704,
+          432
+        ],
+        "typeVersion": 1,
+        "id": "cfef1ffb-a754-43ee-b2cf-a6c67fdc0c59",
+        "name": "Sticky Note2"
+      },
+      {
+        "parameters": {
+          "httpRequestMethod": "POST",
+          "graphApiVersion": "v23.0",
+          "node": "me",
+          "edge": "photos",
+          "sendBinaryData": true,
+          "binaryPropertyName": "data",
+          "options": {
+            "queryParameters": {
+              "parameter": [
+                {
+                  "name": "message"
+                }
+              ]
+            }
+          }
+        },
+        "type": "n8n-nodes-base.facebookGraphApi",
+        "typeVersion": 1,
+        "position": [
+          1648,
+          592
+        ],
+        "id": "64018465-8901-491a-9029-ea4c6e296647",
+        "name": "Facebook Graph API",
+        "credentials": {
+          "facebookGraphApi": {
+            "id": "Ov4dZUnI7ypg74W3",
+            "name": "Facebook Access Lifetime"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "method": "POST",
+          "url": "https://render.imejis.io/v1/mhc1ouCdzWN5dGIebC9KG",
+          "sendHeaders": true,
+          "headerParameters": {
+            "parameters": [
+              {
+                "name": "dma-api-key",
+                "value": "eF68HFb3HvNuTE7RckOt0"
+              },
+              {
+                "name": "Content-Type",
+                "value": "application/json"
+              }
+            ]
+          },
+          "sendBody": true,
+          "specifyBody": "json",
+          "jsonBody": "={\n  \"background_image\": {\n    \"image\": \"{{ $json.output.imageURL }}\",\n    \"opacity\": 1,\n    \"borderColor\": \"transparent\"\n  },\n  \"city_country\": {\n    \"text\": \"{{ $('OpenWeatherMap').item.json.name }}, Philippines\",\n    \"color\": \"#ffffff\",\n    \"backgroundColor\": \"transparent\",\n    \"textBackgroundColor\": \"transparent\",\n    \"borderColor\": \"transparent\",\n    \"strokeColor\": \"transparent\"\n  },\n  \"temperature\": {\n    \"text\": \"{{ $('OpenWeatherMap').item.json.main.temp.toFixed()  }}°C\",\n    \"color\": \"#ffffff\",\n    \"backgroundColor\": \"transparent\",\n    \"textBackgroundColor\": \"transparent\",\n    \"borderColor\": \"transparent\",\n    \"strokeColor\": \"transparent\"\n  },\n  \"weather_forecast\": {\n    \"text\": \"{{ $json.output.weatherForecast }}\",\n    \"color\": \"#ffffff\",\n    \"backgroundColor\": \"transparent\",\n    \"textBackgroundColor\": \"transparent\",\n    \"borderColor\": \"transparent\",\n    \"strokeColor\": \"transparent\"\n  },\n  \"quote_here\": {\n    \"text\": \"{{ $('Generate Caption').item.json.output }}\",\n    \"color\": \"#ffffff\",\n    \"backgroundColor\": \"transparent\",\n    \"textBackgroundColor\": \"transparent\",\n    \"borderColor\": \"transparent\",\n    \"strokeColor\": \"transparent\",\n    \"fontFamily\": \"Montserrat\"\n  }\n}\n",
+          "options": {}
+        },
+        "type": "n8n-nodes-base.httpRequest",
+        "typeVersion": 4.3,
+        "position": [
+          1424,
+          592
+        ],
+        "id": "4f8d7570-ba28-4b5f-a590-288fa2721f13",
+        "name": "Imejis Template"
+      },
+      {
+        "parameters": {
+          "promptType": "define",
+          "text": "=You are an AI Agent tasked with retrieving a unique image URL from a connected tool and saving it to a connected spreadsheet for a weather forecast Facebook post. Follow these steps:\n\n1. **Retrieve Image URL**: Obtain an image URL from the connected tool that visually represents \"overcast clouds\".\n\n2. **Check for Uniqueness**: Access the connected spreadsheet and review all existing image URLs in the rows. Verify that the retrieved URL is not identical to any previously saved URLs.\n\n3. **Handle Duplicates**: If the retrieved URL already exists in the spreadsheet, request a new image URL from the connected tool and repeat the uniqueness check until a unique URL is obtained.\n\n4. **Save the URL**: Once a unique image URL is confirmed, append it to the next available row in the connected spreadsheet.\n\n5. **Generate Explanation**: Provide a 17-word explanation what is the meaning of the \"{{ $('OpenWeatherMap').item.json.weather[0].description }}\" for our Facebook post about weather forecast.\n\n6. **Output**: Return the unique image URL and 17-word explanation to the user.\n\n\nExample Output:\n{\n  \"imageURL\":\"https://example.com/overcast_clouds.jpg\",\n  \"weatherForecast\":\"Overcast clouds blanket the sky, creating a gray, gloomy, atmosphere, often signalling rain or dizzle soon.\"\n}",
+          "hasOutputParser": true,
+          "options": {}
+        },
+        "type": "@n8n/n8n-nodes-langchain.agent",
+        "typeVersion": 3.1,
+        "position": [
+          1040,
+          592
+        ],
+        "id": "870b73fe-8a43-41af-ac5d-e3471db5a174",
+        "name": "Get Background Image and Weather Forecast1"
+      },
+      {
+        "parameters": {
+          "jsonSchemaExample": "{\n  \"imageURL\":\"https://example.com/overcast_clouds.jpg\",\n  \"weatherForecast\":\"Overcast clouds blanket the sky, creating a gray, gloomy, atmosphere, often signalling rain or dizzle soon.\"\n}"
+        },
+        "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+        "typeVersion": 1.3,
+        "position": [
+          1424,
+          832
+        ],
+        "id": "865a0099-4a52-4f5e-95ee-9a8b94ee266d",
+        "name": "Structured Output Parser1"
+      },
+      {
+        "parameters": {
+          "documentId": {
+            "__rl": true,
+            "value": "1_xkgKh4rBHfOfrTH3lolAokElHmdcyh63K0NCg7uUD4",
+            "mode": "list",
+            "cachedResultName": "N8N Qoute & Image List",
+            "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1_xkgKh4rBHfOfrTH3lolAokElHmdcyh63K0NCg7uUD4/edit?usp=drivesdk"
+          },
+          "sheetName": {
+            "__rl": true,
+            "value": 469449467,
+            "mode": "list",
+            "cachedResultName": "Images",
+            "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1_xkgKh4rBHfOfrTH3lolAokElHmdcyh63K0NCg7uUD4/edit#gid=469449467"
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.googleSheetsTool",
+        "typeVersion": 4.7,
+        "position": [
+          960,
+          832
+        ],
+        "id": "84eda2a8-38f9-43cf-9148-fa9de03bf065",
+        "name": "Check if image URL is already used1",
+        "credentials": {
+          "googleSheetsOAuth2Api": {
+            "id": "eoMqcHVYVy8MoSYF",
+            "name": "Google Sheets account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "operation": "append",
+          "documentId": {
+            "__rl": true,
+            "value": "1_xkgKh4rBHfOfrTH3lolAokElHmdcyh63K0NCg7uUD4",
+            "mode": "list",
+            "cachedResultName": "N8N Qoute & Image List",
+            "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1_xkgKh4rBHfOfrTH3lolAokElHmdcyh63K0NCg7uUD4/edit?usp=drivesdk"
+          },
+          "sheetName": {
+            "__rl": true,
+            "value": 469449467,
+            "mode": "list",
+            "cachedResultName": "Images",
+            "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1_xkgKh4rBHfOfrTH3lolAokElHmdcyh63K0NCg7uUD4/edit#gid=469449467"
+          },
+          "columns": {
+            "mappingMode": "defineBelow",
+            "value": {
+              "Image URL": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Image_URL', ``, 'string') }}"
+            },
+            "matchingColumns": [
+              "Image URL"
+            ],
+            "schema": [
+              {
+                "id": "Image URL",
+                "displayName": "Image URL",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true,
+                "removed": false
+              }
+            ],
+            "attemptToConvertTypes": false,
+            "convertFieldsToString": false
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.googleSheetsTool",
+        "typeVersion": 4.7,
+        "position": [
+          1104,
+          832
+        ],
+        "id": "4989209e-5875-48b6-a23d-0a828d4459f3",
+        "name": "Save Image URL1",
+        "credentials": {
+          "googleSheetsOAuth2Api": {
+            "id": "eoMqcHVYVy8MoSYF",
+            "name": "Google Sheets account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "method": "POST",
+          "url": "https://stablehorde.net/api/v2/generate/async",
+          "sendHeaders": true,
+          "headerParameters": {
+            "parameters": [
+              {
+                "name": "apikey",
+                "value": "FmaZFaO043-KmIZTh_fJww"
+              },
+              {
+                "name": "Content-Type",
+                "value": "application/json"
+              }
+            ]
+          },
+          "sendBody": true,
+          "specifyBody": "json",
+          "jsonBody": "={\n\"prompt\": \"{{ $json.weather[0].description }} in {{ $json.name }} city, highly detailed, 4k\",\n\"params\": {\n\"width\": 512,\n\"height\": 512,\n\"steps\": 25,\n\"n\": 1\n}\n} ",
+          "options": {}
+        },
+        "type": "n8n-nodes-base.httpRequest",
+        "typeVersion": 4.3,
+        "position": [
+          832,
+          592
+        ],
+        "id": "2e7bc51d-4500-4fdc-87b9-902884886d75",
+        "name": "Send a request to Horde",
+        "retryOnFail": true,
+        "waitBetweenTries": 3000
+      },
+      {
+        "parameters": {
+          "url": "=https://stablehorde.net/api/v2/generate/status/{{ $('Send a request to Horde').item.json.id }}",
+          "options": {}
+        },
+        "type": "n8n-nodes-base.httpRequestTool",
+        "typeVersion": 4.3,
+        "position": [
+          1264,
+          832
+        ],
+        "id": "0262e2d1-c6df-4c8e-8f82-0006d4146d65",
+        "name": "Poll the Result from the Horde"
+      }
+    ],
+    "connections": {
+      "Schedule Trigger": {
+        "main": [
+          [
+            {
+              "node": "Generate Caption",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Check if Quote is already used": {
+        "ai_tool": [
+          [
+            {
+              "node": "Generate Caption",
+              "type": "ai_tool",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Generate Caption": {
+        "main": [
+          [
+            {
+              "node": "OpenWeatherMap",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "OpenWeatherMap": {
+        "main": [
+          [
+            {
+              "node": "Get Background Image and Weather Forecast",
+              "type": "main",
+              "index": 0
+            },
+            {
+              "node": "Send a request to Horde",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Add Quote to Google Sheet": {
+        "ai_tool": [
+          [
+            {
+              "node": "Generate Caption",
+              "type": "ai_tool",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Generate an image": {
+        "main": [
+          [
+            {
+              "node": "Generate Background Image",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Extract from File": {
+        "main": [
+          [
+            {
+              "node": "HTTP Request2",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Facebook Graph API1": {
+        "main": [
+          [
+            {
+              "node": "Save Image to imgbb.com",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Generate Background Image": {
+        "main": [
+          [
+            {
+              "node": "Generate Weather Icon",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Generate Weather Icon": {
+        "main": [
+          [
+            {
+              "node": "Generate Final Image",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Generate Final Image": {
+        "main": [
+          []
+        ]
+      },
+      "HTTP Request2": {
+        "main": [
+          [
+            {
+              "node": "Facebook Graph API1",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Background Image": {
+        "ai_tool": [
+          [
+            {
+              "node": "Get Background Image and Weather Forecast",
+              "type": "ai_tool",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Get Background Image and Weather Forecast": {
+        "main": [
+          [
+            {
+              "node": "HTTP Request",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Structured Output Parser": {
+        "ai_outputParser": [
+          [
+            {
+              "node": "Get Background Image and Weather Forecast",
+              "type": "ai_outputParser",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Check if image URL is already used": {
+        "ai_tool": [
+          [
+            {
+              "node": "Get Background Image and Weather Forecast",
+              "type": "ai_tool",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Save Image URL": {
+        "ai_tool": [
+          [
+            {
+              "node": "Get Background Image and Weather Forecast",
+              "type": "ai_tool",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Ollama Chat Model": {
+        "ai_languageModel": [
+          []
+        ]
+      },
+      "OpenRouter Chat Model": {
+        "ai_languageModel": [
+          [
+            {
+              "node": "Generate Caption",
+              "type": "ai_languageModel",
+              "index": 0
+            },
+            {
+              "node": "Get Background Image and Weather Forecast",
+              "type": "ai_languageModel",
+              "index": 0
+            },
+            {
+              "node": "Get Background Image and Weather Forecast1",
+              "type": "ai_languageModel",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "HTTP Request": {
+        "main": [
+          [
+            {
+              "node": "Facebook Graph API2",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Imejis Template": {
+        "main": [
+          [
+            {
+              "node": "Facebook Graph API",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Structured Output Parser1": {
+        "ai_outputParser": [
+          [
+            {
+              "node": "Get Background Image and Weather Forecast1",
+              "type": "ai_outputParser",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Check if image URL is already used1": {
+        "ai_tool": [
+          [
+            {
+              "node": "Get Background Image and Weather Forecast1",
+              "type": "ai_tool",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Save Image URL1": {
+        "ai_tool": [
+          [
+            {
+              "node": "Get Background Image and Weather Forecast1",
+              "type": "ai_tool",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Get Background Image and Weather Forecast1": {
+        "main": [
+          [
+            {
+              "node": "Imejis Template",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Send a request to Horde": {
+        "main": [
+          [
+            {
+              "node": "Get Background Image and Weather Forecast1",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Poll the Result from the Horde": {
+        "ai_tool": [
+          [
+            {
+              "node": "Get Background Image and Weather Forecast1",
+              "type": "ai_tool",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    },
+    "authors": "Christopher Christian Cosingan",
+    "name": "Version bd896b7d",
+    "description": "",
+    "autosaved": false
+  },
+  "activeVersionId": "bd896b7d-8c7b-40b9-97ed-b5569706d4e8",
+  "connections": {
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "Generate Caption",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check if Quote is already used": {
+      "ai_tool": [
+        [
+          {
+            "node": "Generate Caption",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generate Caption": {
+      "main": [
+        [
+          {
+            "node": "OpenWeatherMap",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenWeatherMap": {
+      "main": [
+        [
+          {
+            "node": "Get Background Image and Weather Forecast",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Send a request to Horde",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Add Quote to Google Sheet": {
+      "ai_tool": [
+        [
+          {
+            "node": "Generate Caption",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generate an image": {
+      "main": [
+        [
+          {
+            "node": "Generate Background Image",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract from File": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Facebook Graph API1": {
+      "main": [
+        [
+          {
+            "node": "Save Image to imgbb.com",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generate Background Image": {
+      "main": [
+        [
+          {
+            "node": "Generate Weather Icon",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generate Weather Icon": {
+      "main": [
+        [
+          {
+            "node": "Generate Final Image",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generate Final Image": {
+      "main": [
+        []
+      ]
+    },
+    "HTTP Request2": {
+      "main": [
+        [
+          {
+            "node": "Facebook Graph API1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Background Image": {
+      "ai_tool": [
+        [
+          {
+            "node": "Get Background Image and Weather Forecast",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Background Image and Weather Forecast": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Structured Output Parser": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "Get Background Image and Weather Forecast",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check if image URL is already used": {
+      "ai_tool": [
+        [
+          {
+            "node": "Get Background Image and Weather Forecast",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Save Image URL": {
+      "ai_tool": [
+        [
+          {
+            "node": "Get Background Image and Weather Forecast",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Ollama Chat Model": {
+      "ai_languageModel": [
+        []
+      ]
+    },
+    "OpenRouter Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Generate Caption",
+            "type": "ai_languageModel",
+            "index": 0
+          },
+          {
+            "node": "Get Background Image and Weather Forecast",
+            "type": "ai_languageModel",
+            "index": 0
+          },
+          {
+            "node": "Get Background Image and Weather Forecast1",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "Facebook Graph API2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Imejis Template": {
+      "main": [
+        [
+          {
+            "node": "Facebook Graph API",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Structured Output Parser1": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "Get Background Image and Weather Forecast1",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check if image URL is already used1": {
+      "ai_tool": [
+        [
+          {
+            "node": "Get Background Image and Weather Forecast1",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Save Image URL1": {
+      "ai_tool": [
+        [
+          {
+            "node": "Get Background Image and Weather Forecast1",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Background Image and Weather Forecast1": {
+      "main": [
+        [
+          {
+            "node": "Imejis Template",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send a request to Horde": {
+      "main": [
+        [
+          {
+            "node": "Get Background Image and Weather Forecast1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Poll the Result from the Horde": {
+      "ai_tool": [
+        [
+          {
+            "node": "Get Background Image and Weather Forecast1",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "createdAt": "2026-01-26T09:17:35.194Z",
+  "id": "1r5F1S83e7bBUHbU5WId9",
+  "isArchived": false,
+  "meta": {
+    "templateCredsSetupCompleted": true
+  },
+  "name": "Social Media Content Creator",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "triggerAtHour": 5
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.3,
+      "position": [
+        -208,
+        -64
+      ],
+      "id": "c4c836db-81b5-4318-a9ee-a392e2220e1f",
+      "name": "Schedule Trigger",
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "You are a daily inspirational quote generator. Your task is to create and save a unique 5-word inspirational quote every time this task runs (ideally once per day).\n\nRules:\n1. The quote must be exactly 5 words long.\n2. It must be original, positive, and inspirational.\n3. Do NOT use any quotation marks in the quote itself.\n4. Before finalizing, check the attached spreadsheet for previously saved quotes.\n\nSpreadsheet instructions:\n- The spreadsheet has at least one column (preferably Column A) that contains all previously saved quotes, one quote per row.\n- Read all existing rows in Column A to retrieve the list of past quotes.\n\nDuplicate check:\n- Compare the newly generated 5-word quote against every existing quote in the spreadsheet.\n- Consider two quotes as duplicates or too similar if:\n  - They are exactly the same (case-insensitive), OR\n  - They contain the same words in the same order (ignoring minor punctuation differences), OR\n  - They are extremely similar in meaning and wording (use your judgment to avoid near-duplicates).\n\nGeneration loop:\n- Generate a candidate 5-word inspirational quote.\n- Check it against all existing quotes in the spreadsheet.\n- If it is unique (no exact match and not too similar), proceed to save it.\n- If it already exists or is too similar, generate a completely new 5-word quote and check again.\n- Repeat this process until you have a truly unique quote.\n\nFinal saving and output:\n- Once you have a unique quote:\n  - Append it as a new row in the spreadsheet (Column A: the quote).\n  - Add the current date in Column B of the same row (format: YYYY-MM-DD).\n- After successfully saving the quote to the spreadsheet, your response must consist of ONLY the exact 5-word quote (nothing else — no labels, no prefixes, no dates, no extra text, no newlines before or after).\n\nExample of valid 5-word quotes:\n- Believe in your inner strength\n- Rise above every challenge today\n- Embrace the possibilities within you\n- Courage grows with every step\n- Dream big and dare greatly\n\nStrictly output only the 5-word quote. Do not add anything else.",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        80,
+        -64
+      ],
+      "id": "0fff2bd7-ee35-43c7-8bc0-e5bbe4f89067",
+      "name": "Generate Caption"
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1_xkgKh4rBHfOfrTH3lolAokElHmdcyh63K0NCg7uUD4",
+          "mode": "list",
+          "cachedResultName": "N8N Qoute List",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1_xkgKh4rBHfOfrTH3lolAokElHmdcyh63K0NCg7uUD4/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Qoutes",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1_xkgKh4rBHfOfrTH3lolAokElHmdcyh63K0NCg7uUD4/edit#gid=0"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheetsTool",
+      "typeVersion": 4.7,
+      "position": [
+        144,
+        176
+      ],
+      "id": "2f4fcd68-318f-403f-a888-06a5966d0ecd",
+      "name": "Check if Quote is already used",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "eoMqcHVYVy8MoSYF",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "cityName": "iligan,ph",
+        "language": "en"
+      },
+      "type": "n8n-nodes-base.openWeatherMap",
+      "typeVersion": 1,
+      "position": [
+        432,
+        -64
+      ],
+      "id": "981deaaa-f025-4164-9099-6155af5965dc",
+      "name": "OpenWeatherMap",
+      "credentials": {
+        "openWeatherMapApi": {
+          "id": "ofoNzLBtq0345mXk",
+          "name": "OpenWeatherMap account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1_xkgKh4rBHfOfrTH3lolAokElHmdcyh63K0NCg7uUD4",
+          "mode": "list",
+          "cachedResultName": "N8N Qoute List",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1_xkgKh4rBHfOfrTH3lolAokElHmdcyh63K0NCg7uUD4/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Qoutes",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1_xkgKh4rBHfOfrTH3lolAokElHmdcyh63K0NCg7uUD4/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Qoute Content": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Qoute_Content', ``, 'string') }}",
+            "Date Posted": "={{ $json['Readable date'] }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Qoute Content",
+              "displayName": "Qoute Content",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Date Posted",
+              "displayName": "Date Posted",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheetsTool",
+      "typeVersion": 4.7,
+      "position": [
+        272,
+        176
+      ],
+      "id": "2fae517b-67ae-49b3-8310-25ac714327d0",
+      "name": "Add Quote to Google Sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "eoMqcHVYVy8MoSYF",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "image",
+        "modelId": {
+          "__rl": true,
+          "value": "models/gemini-2.5-flash-image",
+          "mode": "list",
+          "cachedResultName": "models/gemini-2.5-flash-image (Nano Banana)"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.googleGemini",
+      "typeVersion": 1.1,
+      "position": [
+        976,
+        -672
+      ],
+      "id": "d991d5dc-52eb-4fd9-b018-69fded6c4a64",
+      "name": "Generate an image",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "q2OL1kDs7kbTbaP4",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "binaryToPropery",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.extractFromFile",
+      "typeVersion": 1.1,
+      "position": [
+        976,
+        -448
+      ],
+      "id": "7a3cb702-5b3d-4358-ba23-62697d98edc5",
+      "name": "Extract from File"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.facebookGraphApi",
+      "typeVersion": 1,
+      "position": [
+        1424,
+        -448
+      ],
+      "id": "a0162c88-3e89-484c-a0d0-24dec4dbbea5",
+      "name": "Facebook Graph API1",
+      "credentials": {
+        "facebookGraphApi": {
+          "id": "Ov4dZUnI7ypg74W3",
+          "name": "Facebook Access Lifetime"
+        }
+      },
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        1200,
+        -672
+      ],
+      "id": "184d0abf-1c1b-4821-9773-44d2c81e2819",
+      "name": "Generate Background Image",
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        1424,
+        -672
+      ],
+      "id": "f0743ca4-235d-4fa1-b2d9-6cb074aebe7b",
+      "name": "Generate Weather Icon",
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        1648,
+        -672
+      ],
+      "id": "27528003-9f09-4f49-b7e4-b47261c638c4",
+      "name": "Generate Final Image",
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        1200,
+        -448
+      ],
+      "id": "097f7cee-ed22-40c6-b567-e293bb0fc75b",
+      "name": "HTTP Request2",
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        1648,
+        -448
+      ],
+      "id": "e1bcc394-ba34-4462-87fa-b9c0b6874c4c",
+      "name": "Save Image to imgbb.com",
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "toolDescription": "=Make a google search with query: {{ $json.weather[0].description }} {{ $json.name }}",
+        "url": "=https://cse.google.com/cse",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "key",
+              "value": "AIzaSyCl-tmJ3I_a0xuKeQO4Wn9ryKXB1i1KAiA"
+            },
+            {
+              "name": "cx",
+              "value": "3247a1f18bcef493c"
+            },
+            {
+              "name": "sort",
+              "value": "date"
+            },
+            {
+              "name": "q",
+              "value": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('parameters3_Value', `Create a custom search parameter for a weather forecast you will generate.\n\nExample: overcast clouds weather`, 'string') }}"
+            },
+            {
+              "name": "siteSearch",
+              "value": "pixabay.com"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequestTool",
+      "typeVersion": 4.3,
+      "position": [
+        896,
+        176
+      ],
+      "id": "141339e4-4df7-4832-85f1-44f3ee54e94c",
+      "name": "Background Image"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=You are an AI Agent tasked with retrieving a unique image URL from a connected tool and saving it to a connected spreadsheet for a weather forecast Facebook post. Follow these steps:\n\n1. **Retrieve Image URL**: Obtain an image URL from the connected tool that visually represents \"overcast clouds\".\n\n2. **Check for Uniqueness**: Access the connected spreadsheet and review all existing image URLs in the rows. Verify that the retrieved URL is not identical to any previously saved URLs.\n\n3. **Handle Duplicates**: If the retrieved URL already exists in the spreadsheet, request a new image URL from the connected tool and repeat the uniqueness check until a unique URL is obtained.\n\n4. **Save the URL**: Once a unique image URL is confirmed, append it to the next available row in the connected spreadsheet.\n\n5. **Generate Explanation**: Provide a 17-word explanation what is the meaning of the \"{{ $json.weather[0].description }}\" for our Facebook post about weather forecast.\n\n6. **Output**: Return the unique image URL and 17-word explanation to the user.\n\n\nExample Output:\n{\n  \"imageURL\":\"https://example.com/overcast_clouds.jpg\",\n  \"weatherForecast\":\"Overcast clouds blanket the sky, creating a gray, gloomy, atmosphere, often signalling rain or dizzle soon.\"\n}",
+        "hasOutputParser": true,
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        960,
+        -64
+      ],
+      "id": "75900c1c-ad1f-436b-bcb3-19d4a5083c50",
+      "name": "Get Background Image and Weather Forecast",
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "jsonSchemaExample": "{\n  \"imageURL\":\"https://example.com/overcast_clouds.jpg\",\n  \"weatherForecast\":\"Overcast clouds blanket the sky, creating a gray, gloomy, atmosphere, often signalling rain or dizzle soon.\"\n}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.3,
+      "position": [
+        1280,
+        176
+      ],
+      "id": "df20ac80-ca6b-41d9-841d-2795f2b801aa",
+      "name": "Structured Output Parser"
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1_xkgKh4rBHfOfrTH3lolAokElHmdcyh63K0NCg7uUD4",
+          "mode": "list",
+          "cachedResultName": "N8N Qoute & Image List",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1_xkgKh4rBHfOfrTH3lolAokElHmdcyh63K0NCg7uUD4/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 469449467,
+          "mode": "list",
+          "cachedResultName": "Images",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1_xkgKh4rBHfOfrTH3lolAokElHmdcyh63K0NCg7uUD4/edit#gid=469449467"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheetsTool",
+      "typeVersion": 4.7,
+      "position": [
+        1024,
+        176
+      ],
+      "id": "428ef2ef-d420-4f57-bfa8-ad7b906881d9",
+      "name": "Check if image URL is already used",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "eoMqcHVYVy8MoSYF",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1_xkgKh4rBHfOfrTH3lolAokElHmdcyh63K0NCg7uUD4",
+          "mode": "list",
+          "cachedResultName": "N8N Qoute & Image List",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1_xkgKh4rBHfOfrTH3lolAokElHmdcyh63K0NCg7uUD4/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 469449467,
+          "mode": "list",
+          "cachedResultName": "Images",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1_xkgKh4rBHfOfrTH3lolAokElHmdcyh63K0NCg7uUD4/edit#gid=469449467"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Image URL": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Image_URL', ``, 'string') }}"
+          },
+          "matchingColumns": [
+            "Image URL"
+          ],
+          "schema": [
+            {
+              "id": "Image URL",
+              "displayName": "Image URL",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheetsTool",
+      "typeVersion": 4.7,
+      "position": [
+        1152,
+        176
+      ],
+      "id": "c8f01fab-8589-4571-b9d6-6446b5c9e55e",
+      "name": "Save Image URL",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "eoMqcHVYVy8MoSYF",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOllama",
+      "typeVersion": 1,
+      "position": [
+        -208,
+        272
+      ],
+      "id": "ca988f59-fce8-4d73-9d35-4124751a55fe",
+      "name": "Ollama Chat Model",
+      "credentials": {
+        "ollamaApi": {
+          "id": "NHESrYKSDeELVzJh",
+          "name": "Ollama account"
+        }
+      },
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "model": "openai/gpt-4o-mini",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
+      "typeVersion": 1,
+      "position": [
+        16,
+        176
+      ],
+      "id": "e109b997-ee5d-4666-9ead-2ac8ecf8390f",
+      "name": "OpenRouter Chat Model",
+      "credentials": {
+        "openRouterApi": {
+          "id": "7S9cKMewYvD9pDt8",
+          "name": "OpenRouter account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://render.imejis.io/v1/mhc1ouCdzWN5dGIebC9KG",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "dma-api-key",
+              "value": "eF68HFb3HvNuTE7RckOt0"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"background_image\": {\n    \"image\": \"{{ $json.output.imageURL }}\",\n    \"opacity\": 1,\n    \"borderColor\": \"transparent\"\n  },\n  \"city_country\": {\n    \"text\": \"{{ $('OpenWeatherMap').item.json.name }}, Philippines\",\n    \"color\": \"#ffffff\",\n    \"backgroundColor\": \"transparent\",\n    \"textBackgroundColor\": \"transparent\",\n    \"borderColor\": \"transparent\",\n    \"strokeColor\": \"transparent\"\n  },\n  \"temperature\": {\n    \"text\": \"{{ $('OpenWeatherMap').item.json.main.temp.toFixed() }}°C\",\n    \"color\": \"#ffffff\",\n    \"backgroundColor\": \"transparent\",\n    \"textBackgroundColor\": \"transparent\",\n    \"borderColor\": \"transparent\",\n    \"strokeColor\": \"transparent\"\n  },\n  \"weather_forecast\": {\n    \"text\": \"{{ $json.output.weatherForecast }}\",\n    \"color\": \"#ffffff\",\n    \"backgroundColor\": \"transparent\",\n    \"textBackgroundColor\": \"transparent\",\n    \"borderColor\": \"transparent\",\n    \"strokeColor\": \"transparent\"\n  },\n  \"quote_here\": {\n    \"text\": \"{{ $('Generate Caption').item.json.output }}\",\n    \"color\": \"#ffffff\",\n    \"backgroundColor\": \"transparent\",\n    \"textBackgroundColor\": \"transparent\",\n    \"borderColor\": \"transparent\",\n    \"strokeColor\": \"transparent\",\n    \"fontFamily\": \"Montserrat\"\n  }\n}\n",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        1296,
+        -64
+      ],
+      "id": "4fb155ab-b80a-46e1-861e-0f52849ecc30",
+      "name": "HTTP Request",
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "httpRequestMethod": "POST",
+        "graphApiVersion": "v23.0",
+        "node": "me",
+        "edge": "photos",
+        "sendBinaryData": true,
+        "binaryPropertyName": "data",
+        "options": {
+          "queryParameters": {
+            "parameter": [
+              {
+                "name": "message"
+              }
+            ]
+          }
+        }
+      },
+      "type": "n8n-nodes-base.facebookGraphApi",
+      "typeVersion": 1,
+      "position": [
+        1584,
+        -64
+      ],
+      "id": "06549e82-aba7-46f7-a0c0-d9997cc71d07",
+      "name": "Facebook Graph API2",
+      "credentials": {
+        "facebookGraphApi": {
+          "id": "Ov4dZUnI7ypg74W3",
+          "name": "Facebook Access Lifetime"
+        }
+      },
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "content": "## Paid Method with NanoBanana",
+        "height": 512,
+        "width": 1296
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        704,
+        -736
+      ],
+      "id": "e5bfe106-68a9-43eb-bb26-e1358cbba8b8",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {
+        "content": "## Free Method with OpenRouter, Google Search Query and Pixabay",
+        "height": 544,
+        "width": 1296,
+        "color": 4
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        704,
+        -160
+      ],
+      "typeVersion": 1,
+      "id": "c778e52a-7d04-4cf6-be90-67f0695b92c6",
+      "name": "Sticky Note1"
+    },
+    {
+      "parameters": {
+        "content": "## Free Method with Horde API",
+        "height": 656,
+        "width": 1296,
+        "color": 5
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        704,
+        432
+      ],
+      "typeVersion": 1,
+      "id": "cfef1ffb-a754-43ee-b2cf-a6c67fdc0c59",
+      "name": "Sticky Note2"
+    },
+    {
+      "parameters": {
+        "httpRequestMethod": "POST",
+        "graphApiVersion": "v23.0",
+        "node": "me",
+        "edge": "photos",
+        "sendBinaryData": true,
+        "binaryPropertyName": "data",
+        "options": {
+          "queryParameters": {
+            "parameter": [
+              {
+                "name": "message"
+              }
+            ]
+          }
+        }
+      },
+      "type": "n8n-nodes-base.facebookGraphApi",
+      "typeVersion": 1,
+      "position": [
+        1648,
+        592
+      ],
+      "id": "64018465-8901-491a-9029-ea4c6e296647",
+      "name": "Facebook Graph API",
+      "credentials": {
+        "facebookGraphApi": {
+          "id": "Ov4dZUnI7ypg74W3",
+          "name": "Facebook Access Lifetime"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://render.imejis.io/v1/mhc1ouCdzWN5dGIebC9KG",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "dma-api-key",
+              "value": "eF68HFb3HvNuTE7RckOt0"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"background_image\": {\n    \"image\": \"{{ $json.output.imageURL }}\",\n    \"opacity\": 1,\n    \"borderColor\": \"transparent\"\n  },\n  \"city_country\": {\n    \"text\": \"{{ $('OpenWeatherMap').item.json.name }}, Philippines\",\n    \"color\": \"#ffffff\",\n    \"backgroundColor\": \"transparent\",\n    \"textBackgroundColor\": \"transparent\",\n    \"borderColor\": \"transparent\",\n    \"strokeColor\": \"transparent\"\n  },\n  \"temperature\": {\n    \"text\": \"{{ $('OpenWeatherMap').item.json.main.temp.toFixed()  }}°C\",\n    \"color\": \"#ffffff\",\n    \"backgroundColor\": \"transparent\",\n    \"textBackgroundColor\": \"transparent\",\n    \"borderColor\": \"transparent\",\n    \"strokeColor\": \"transparent\"\n  },\n  \"weather_forecast\": {\n    \"text\": \"{{ $json.output.weatherForecast }}\",\n    \"color\": \"#ffffff\",\n    \"backgroundColor\": \"transparent\",\n    \"textBackgroundColor\": \"transparent\",\n    \"borderColor\": \"transparent\",\n    \"strokeColor\": \"transparent\"\n  },\n  \"quote_here\": {\n    \"text\": \"{{ $('Generate Caption').item.json.output }}\",\n    \"color\": \"#ffffff\",\n    \"backgroundColor\": \"transparent\",\n    \"textBackgroundColor\": \"transparent\",\n    \"borderColor\": \"transparent\",\n    \"strokeColor\": \"transparent\",\n    \"fontFamily\": \"Montserrat\"\n  }\n}\n",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        1424,
+        592
+      ],
+      "id": "4f8d7570-ba28-4b5f-a590-288fa2721f13",
+      "name": "Imejis Template"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=You are an AI Agent tasked with retrieving a unique image URL from a connected tool and saving it to a connected spreadsheet for a weather forecast Facebook post. Follow these steps:\n\n1. **Retrieve Image URL**: Obtain an image URL from the connected tool that visually represents \"overcast clouds\".\n\n2. **Check for Uniqueness**: Access the connected spreadsheet and review all existing image URLs in the rows. Verify that the retrieved URL is not identical to any previously saved URLs.\n\n3. **Handle Duplicates**: If the retrieved URL already exists in the spreadsheet, request a new image URL from the connected tool and repeat the uniqueness check until a unique URL is obtained.\n\n4. **Save the URL**: Once a unique image URL is confirmed, append it to the next available row in the connected spreadsheet.\n\n5. **Generate Explanation**: Provide a 17-word explanation what is the meaning of the \"{{ $('OpenWeatherMap').item.json.weather[0].description }}\" for our Facebook post about weather forecast.\n\n6. **Output**: Return the unique image URL and 17-word explanation to the user.\n\n\nExample Output:\n{\n  \"imageURL\":\"https://example.com/overcast_clouds.jpg\",\n  \"weatherForecast\":\"Overcast clouds blanket the sky, creating a gray, gloomy, atmosphere, often signalling rain or dizzle soon.\"\n}",
+        "hasOutputParser": true,
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        1040,
+        592
+      ],
+      "id": "870b73fe-8a43-41af-ac5d-e3471db5a174",
+      "name": "Get Background Image and Weather Forecast1"
+    },
+    {
+      "parameters": {
+        "jsonSchemaExample": "{\n  \"imageURL\":\"https://example.com/overcast_clouds.jpg\",\n  \"weatherForecast\":\"Overcast clouds blanket the sky, creating a gray, gloomy, atmosphere, often signalling rain or dizzle soon.\"\n}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.3,
+      "position": [
+        1424,
+        832
+      ],
+      "id": "865a0099-4a52-4f5e-95ee-9a8b94ee266d",
+      "name": "Structured Output Parser1"
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1_xkgKh4rBHfOfrTH3lolAokElHmdcyh63K0NCg7uUD4",
+          "mode": "list",
+          "cachedResultName": "N8N Qoute & Image List",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1_xkgKh4rBHfOfrTH3lolAokElHmdcyh63K0NCg7uUD4/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 469449467,
+          "mode": "list",
+          "cachedResultName": "Images",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1_xkgKh4rBHfOfrTH3lolAokElHmdcyh63K0NCg7uUD4/edit#gid=469449467"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheetsTool",
+      "typeVersion": 4.7,
+      "position": [
+        960,
+        832
+      ],
+      "id": "84eda2a8-38f9-43cf-9148-fa9de03bf065",
+      "name": "Check if image URL is already used1",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "eoMqcHVYVy8MoSYF",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1_xkgKh4rBHfOfrTH3lolAokElHmdcyh63K0NCg7uUD4",
+          "mode": "list",
+          "cachedResultName": "N8N Qoute & Image List",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1_xkgKh4rBHfOfrTH3lolAokElHmdcyh63K0NCg7uUD4/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 469449467,
+          "mode": "list",
+          "cachedResultName": "Images",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1_xkgKh4rBHfOfrTH3lolAokElHmdcyh63K0NCg7uUD4/edit#gid=469449467"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Image URL": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Image_URL', ``, 'string') }}"
+          },
+          "matchingColumns": [
+            "Image URL"
+          ],
+          "schema": [
+            {
+              "id": "Image URL",
+              "displayName": "Image URL",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheetsTool",
+      "typeVersion": 4.7,
+      "position": [
+        1104,
+        832
+      ],
+      "id": "4989209e-5875-48b6-a23d-0a828d4459f3",
+      "name": "Save Image URL1",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "eoMqcHVYVy8MoSYF",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://stablehorde.net/api/v2/generate/async",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "FmaZFaO043-KmIZTh_fJww"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n\"prompt\": \"{{ $json.weather[0].description }} in {{ $json.name }} city, highly detailed, 4k\",\n\"params\": {\n\"width\": 512,\n\"height\": 512,\n\"steps\": 25,\n\"n\": 1\n}\n} ",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        832,
+        592
+      ],
+      "id": "2e7bc51d-4500-4fdc-87b9-902884886d75",
+      "name": "Send a request to Horde",
+      "retryOnFail": true,
+      "waitBetweenTries": 3000
+    },
+    {
+      "parameters": {
+        "url": "=https://stablehorde.net/api/v2/generate/status/{{ $('Send a request to Horde').item.json.id }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequestTool",
+      "typeVersion": 4.3,
+      "position": [
+        1264,
+        832
+      ],
+      "id": "0262e2d1-c6df-4c8e-8f82-0006d4146d65",
+      "name": "Poll the Result from the Horde"
+    }
+  ],
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1",
+    "availableInMCP": false
+  },
+  "shared": [
+    {
+      "updatedAt": "2026-01-26T09:17:35.198Z",
+      "createdAt": "2026-01-26T09:17:35.198Z",
+      "role": "workflow:owner",
+      "workflowId": "1r5F1S83e7bBUHbU5WId9",
+      "projectId": "xjoV5aejNHZgjiXo"
+    }
+  ],
+  "staticData": null,
+  "tags": [],
+  "triggerCount": 1,
+  "updatedAt": "2026-02-06T16:13:59.163Z",
+  "versionId": "bf498b4b-10a4-44fa-bfed-c10443953f4f"
+}
