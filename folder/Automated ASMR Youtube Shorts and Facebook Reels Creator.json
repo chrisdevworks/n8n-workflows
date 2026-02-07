@@ -818,7 +818,8 @@
         -64
       ],
       "id": "f3e2fb0b-c66e-49ab-a6cf-d5c94e3e85ba",
-      "name": "Schedule Trigger"
+      "name": "Schedule Trigger",
+      "disabled": true
     },
     {
       "parameters": {
@@ -1219,6 +1220,6 @@
   "staticData": null,
   "tags": [],
   "triggerCount": 1,
-  "updatedAt": "2026-02-02T18:34:40.730Z",
-  "versionId": "9294371d-beb6-4003-8ab6-b179b8071027"
+  "updatedAt": "2026-02-06T16:13:46.876Z",
+  "versionId": "b65dd309-a6c3-41c4-973b-fb59f713797d"
 }
