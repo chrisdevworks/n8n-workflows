@@ -1,9 +1,9 @@
 {
   "active": true,
   "activeVersion": {
-    "updatedAt": "2026-02-03T10:18:18.000Z",
-    "createdAt": "2026-02-03T10:17:56.579Z",
-    "versionId": "49023eb2-16cb-4c4a-8fba-db59ae9ea867",
+    "updatedAt": "2026-03-02T11:48:38.000Z",
+    "createdAt": "2026-03-02T11:48:37.864Z",
+    "versionId": "d3a22250-95d5-4526-bf3a-7162ce5cfd93",
     "workflowId": "9PX4g_rVlcThRbFZ_5Z0Q",
     "nodes": [
       {
@@ -17,31 +17,10 @@
         "typeVersion": 3.1,
         "position": [
           112,
-          0
+          -16
         ],
         "id": "896c21f1-7993-4f6f-87ac-4a1c1eb912ca",
         "name": "AI Agent"
-      },
-      {
-        "parameters": {
-          "modelName": "models/gemini-3-flash-preview",
-          "options": {}
-        },
-        "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
-        "typeVersion": 1,
-        "position": [
-          -560,
-          768
-        ],
-        "id": "27836c74-703b-485d-a42e-142710642c0d",
-        "name": "Google Gemini Chat Model",
-        "credentials": {
-          "googlePalmApi": {
-            "id": "q2OL1kDs7kbTbaP4",
-            "name": "Google Gemini(PaLM) Api account"
-          }
-        },
-        "disabled": true
       },
       {
         "parameters": {
@@ -52,7 +31,7 @@
         "typeVersion": 1.3,
         "position": [
           256,
-          224
+          208
         ],
         "id": "37ebc1bd-345c-48bb-9cac-62449c9f3999",
         "name": "Simple Memory"
@@ -94,7 +73,7 @@
         "typeVersion": 2.3,
         "position": [
           -336,
-          -192
+          -208
         ],
         "id": "bd3329b6-0797-4e0b-8e50-83b5d7840e52",
         "name": "If"
@@ -123,42 +102,10 @@
         "typeVersion": 2,
         "position": [
           -112,
-          0
+          -16
         ],
         "id": "ff7b20d6-49d5-4c26-a3a2-01340162d685",
         "name": "Get a document",
-        "credentials": {
-          "googleDocsOAuth2Api": {
-            "id": "HMVbLE5B3YUgA2GK",
-            "name": "Google Docs account"
-          }
-        }
-      },
-      {
-        "parameters": {},
-        "type": "n8n-nodes-base.manualTrigger",
-        "typeVersion": 1,
-        "position": [
-          -560,
-          336
-        ],
-        "id": "650fe346-b92d-43e6-8c52-b49d908cf999",
-        "name": "When clicking ‘Execute workflow’",
-        "disabled": true
-      },
-      {
-        "parameters": {
-          "operation": "get",
-          "documentURL": "1aHkP4q-mMDX1xOLqcV_ACjRHVmBwjCzdrtircCmx_zM"
-        },
-        "type": "n8n-nodes-base.googleDocs",
-        "typeVersion": 2,
-        "position": [
-          -336,
-          336
-        ],
-        "id": "b2f6aaa6-4163-4576-8e70-693e07324a0d",
-        "name": "Get a document1",
         "credentials": {
           "googleDocsOAuth2Api": {
             "id": "HMVbLE5B3YUgA2GK",
@@ -177,7 +124,7 @@
         "typeVersion": 2.1,
         "position": [
           -560,
-          -96
+          -112
         ],
         "id": "3d0bb736-b1c7-4b17-b8fd-a15da8990637",
         "name": "Webhook",
@@ -192,7 +139,7 @@
             "parameters": [
               {
                 "name": "access_token",
-                "value": "EAAg5YR5xGfcBQqh4FZBSy3vSxfyuYPvuOoSnZBEOuHW313Bb5TEZAAakCwUnoLPX6DtjZA6tkWZBhj7xWTlNXt2yO9QqHBH27T25p6MRQnw0qlbpdYh7fV70pMFGBdav2T1Rb4IPqIBYSR2FkHvEZAXejZBgREGHlZBcLsXFfPmBbDdsUbQhU3889hI5q7aF3TGB0ovGcEwZD"
+                "value": "***SANITIZED***"
               }
             ]
           },
@@ -205,7 +152,7 @@
         "typeVersion": 4.3,
         "position": [
           688,
-          -96
+          -112
         ],
         "id": "be387405-49cb-417f-b4e5-66384b94c1b4",
         "name": "HTTP Request"
@@ -239,7 +186,7 @@
         "typeVersion": 2.3,
         "position": [
           -336,
-          0
+          -16
         ],
         "id": "ebe27ccd-839e-4b82-98df-360837927918",
         "name": "Filter",
@@ -274,7 +221,7 @@
         "typeVersion": 2.3,
         "position": [
           464,
-          0
+          -16
         ],
         "id": "003b5754-13e2-4d7f-8dc9-dbd35a7b8688",
         "name": "If1"
@@ -288,7 +235,7 @@
             "parameters": [
               {
                 "name": "access_token",
-                "value": "EAAg5YR5xGfcBQqh4FZBSy3vSxfyuYPvuOoSnZBEOuHW313Bb5TEZAAakCwUnoLPX6DtjZA6tkWZBhj7xWTlNXt2yO9QqHBH27T25p6MRQnw0qlbpdYh7fV70pMFGBdav2T1Rb4IPqIBYSR2FkHvEZAXejZBgREGHlZBcLsXFfPmBbDdsUbQhU3889hI5q7aF3TGB0ovGcEwZD"
+                "value": "***SANITIZED***"
               }
             ]
           },
@@ -301,7 +248,7 @@
         "typeVersion": 4.3,
         "position": [
           688,
-          144
+          80
         ],
         "id": "3b9ce2a9-5e32-434b-8b67-13be4d1522e3",
         "name": "HTTP Request1"
@@ -314,8 +261,8 @@
         "type": "@n8n/n8n-nodes-langchain.lmChatOllama",
         "typeVersion": 1,
         "position": [
-          128,
-          224
+          -16,
+          208
         ],
         "id": "edbefde5-879b-446b-8d1b-6a936f51752d",
         "name": "Ollama Chat Model",
@@ -329,39 +276,13 @@
       },
       {
         "parameters": {
-          "model": {
-            "__rl": true,
-            "mode": "list",
-            "value": "gpt-4.1-mini"
-          },
-          "builtInTools": {},
-          "options": {}
-        },
-        "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
-        "typeVersion": 1.3,
-        "position": [
-          -560,
-          560
-        ],
-        "id": "a5aae837-6157-492b-b13d-eb238cf73df6",
-        "name": "OpenAI Chat Model",
-        "credentials": {
-          "openAiApi": {
-            "id": "tsVfJO78DmVLQZwo",
-            "name": "OpenAi account"
-          }
-        },
-        "disabled": true
-      },
-      {
-        "parameters": {
           "model": "x-ai/grok-4.1-fast",
           "options": {}
         },
         "type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
         "typeVersion": 1,
         "position": [
-          16,
+          128,
           208
         ],
         "id": "89dc3e3b-c0c9-49c6-9045-7dbb40c63e1c",
@@ -372,6 +293,17 @@
             "name": "OpenRouter account"
           }
         }
+      },
+      {
+        "parameters": {},
+        "type": "n8n-nodes-base.stickyNote",
+        "position": [
+          -576,
+          144
+        ],
+        "typeVersion": 1,
+        "id": "4a0e0bc9-c410-470c-823d-3159f02e8526",
+        "name": "Sticky Note"
       }
     ],
     "connections": {
@@ -384,11 +316,6 @@
               "index": 0
             }
           ]
-        ]
-      },
-      "Google Gemini Chat Model": {
-        "ai_languageModel": [
-          []
         ]
       },
       "Simple Memory": {
@@ -418,17 +345,6 @@
           [
             {
               "node": "AI Agent",
-              "type": "main",
-              "index": 0
-            }
-          ]
-        ]
-      },
-      "When clicking ‘Execute workflow’": {
-        "main": [
-          [
-            {
-              "node": "Get a document1",
               "type": "main",
               "index": 0
             }
@@ -487,11 +403,6 @@
           []
         ]
       },
-      "OpenAI Chat Model": {
-        "ai_languageModel": [
-          []
-        ]
-      },
       "OpenRouter Chat Model": {
         "ai_languageModel": [
           [
@@ -505,11 +416,11 @@
       }
     },
     "authors": "Christopher Christian Cosingan",
-    "name": "Version 49023eb2",
+    "name": "Version d3a22250",
     "description": "",
-    "autosaved": true
+    "autosaved": false
   },
-  "activeVersionId": "49023eb2-16cb-4c4a-8fba-db59ae9ea867",
+  "activeVersionId": "d3a22250-95d5-4526-bf3a-7162ce5cfd93",
   "connections": {
     "AI Agent": {
       "main": [
@@ -651,7 +562,7 @@
       "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
       "typeVersion": 1.3,
       "position": [
-        248,
+        256,
         208
       ],
       "id": "37ebc1bd-345c-48bb-9cac-62449c9f3999",
@@ -760,7 +671,7 @@
           "parameters": [
             {
               "name": "access_token",
-              "value": "EAAg5YR5xGfcBQqh4FZBSy3vSxfyuYPvuOoSnZBEOuHW313Bb5TEZAAakCwUnoLPX6DtjZA6tkWZBhj7xWTlNXt2yO9QqHBH27T25p6MRQnw0qlbpdYh7fV70pMFGBdav2T1Rb4IPqIBYSR2FkHvEZAXejZBgREGHlZBcLsXFfPmBbDdsUbQhU3889hI5q7aF3TGB0ovGcEwZD"
+              "value": "***SANITIZED***"
             }
           ]
         },
@@ -856,7 +767,7 @@
           "parameters": [
             {
               "name": "access_token",
-              "value": "EAAg5YR5xGfcBQqh4FZBSy3vSxfyuYPvuOoSnZBEOuHW313Bb5TEZAAakCwUnoLPX6DtjZA6tkWZBhj7xWTlNXt2yO9QqHBH27T25p6MRQnw0qlbpdYh7fV70pMFGBdav2T1Rb4IPqIBYSR2FkHvEZAXejZBgREGHlZBcLsXFfPmBbDdsUbQhU3889hI5q7aF3TGB0ovGcEwZD"
+              "value": "***SANITIZED***"
             }
           ]
         },
@@ -903,7 +814,7 @@
       "type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
       "typeVersion": 1,
       "position": [
-        120,
+        128,
         208
       ],
       "id": "89dc3e3b-c0c9-49c6-9045-7dbb40c63e1c",
@@ -914,6 +825,17 @@
           "name": "OpenRouter account"
         }
       }
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -576,
+        144
+      ],
+      "typeVersion": 1,
+      "id": "4a0e0bc9-c410-470c-823d-3159f02e8526",
+      "name": "Sticky Note"
     }
   ],
   "pinData": {
@@ -988,6 +910,6 @@
   "staticData": null,
   "tags": [],
   "triggerCount": 1,
-  "updatedAt": "2026-02-03T10:19:35.350Z",
-  "versionId": "5814faee-6c23-42aa-9ff3-fe6a41c38fb8"
+  "updatedAt": "2026-03-02T11:48:37.864Z",
+  "versionId": "d3a22250-95d5-4526-bf3a-7162ce5cfd93"
 }
