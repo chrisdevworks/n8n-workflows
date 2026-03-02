@@ -1,9 +1,9 @@
 {
   "active": true,
   "activeVersion": {
-    "updatedAt": "2026-02-03T09:56:58.000Z",
-    "createdAt": "2026-02-03T09:56:49.658Z",
-    "versionId": "13787105-03d2-4d35-b958-e88fda2de6ee",
+    "updatedAt": "2026-03-02T11:40:38.000Z",
+    "createdAt": "2026-03-02T11:40:36.917Z",
+    "versionId": "875b2698-60e4-4317-a01d-f194196f0e98",
     "workflowId": "W3tSO5Pe1t-hrfv2l-Ekm",
     "nodes": [
       {
@@ -20,36 +20,36 @@
           },
           "options": {}
         },
-        "id": "d5efec23-eefc-443b-9e6d-4f41ee240d88",
+        "id": "f83be6a7-22c8-435c-9973-3536cd95e5a0",
         "name": "Return",
         "type": "n8n-nodes-base.set",
         "position": [
-          3760,
-          408
+          1664,
+          464
         ],
         "typeVersion": 3.3
       },
       {
         "parameters": {},
-        "id": "ede04e40-7152-40f8-9860-942b15fba268",
+        "id": "e8e7c145-ebbf-471b-b5ac-7d6f5ab051a0",
         "name": "Merge Items",
         "type": "n8n-nodes-base.merge",
         "position": [
-          2864,
-          288
+          752,
+          336
         ],
         "typeVersion": 2
       },
       {
         "parameters": {
-          "jsCode": "const orderJsonKeys = (jsonObj) => {\n  const ordered = {};\n  Object.keys(jsonObj).sort().forEach(key => {\n    ordered[key] = jsonObj[key];\n  });\n  return ordered;\n}\n\n// Check if file returned with content\nif (Object.keys($input.all()[0].json).includes(\"content\")) {\n  // Decode base64 content and parse JSON\n  const origWorkflow = JSON.parse(Buffer.from($input.all()[0].json.content, 'base64').toString());\n  const n8nWorkflow = $input.all()[1].json;\n  \n  // Order JSON objects\n  const orderedOriginal = orderJsonKeys(origWorkflow);\n  const orderedActual = orderJsonKeys(n8nWorkflow);\n\n  // Determine difference\n  if (JSON.stringify(orderedOriginal) === JSON.stringify(orderedActual)) {\n    $input.all()[0].json.github_status = \"same\";\n  } else {\n    $input.all()[0].json.github_status = \"different\";\n    $input.all()[0].json.n8n_data_stringy = JSON.stringify(orderedActual, null, 2);\n  }\n  $input.all()[0].json.content_decoded = orderedOriginal;\n// No file returned / new workflow\n} else if (Object.keys($input.all()[0].json).includes(\"data\")) {\n  const origWorkflow = JSON.parse($input.all()[0].json.data);\n  const n8nWorkflow = $input.all()[1].json;\n  \n  // Order JSON objects\n  const orderedOriginal = orderJsonKeys(origWorkflow);\n  const orderedActual = orderJsonKeys(n8nWorkflow);\n\n  // Determine difference\n  if (JSON.stringify(orderedOriginal) === JSON.stringify(orderedActual)) {\n    $input.all()[0].json.github_status = \"same\";\n  } else {\n    $input.all()[0].json.github_status = \"different\";\n    $input.all()[0].json.n8n_data_stringy = JSON.stringify(orderedActual, null, 2);\n  }\n  $input.all()[0].json.content_decoded = orderedOriginal;\n\n} else {\n  // Order JSON object\n  const n8nWorkflow = $input.all()[1].json;\n  const orderedActual = orderJsonKeys(n8nWorkflow);\n  \n  // Proper formatting\n  $input.all()[0].json.github_status = \"new\";\n  $input.all()[0].json.n8n_data_stringy = JSON.stringify(orderedActual, null, 2);\n}\n\n// Return items\nreturn $input.all();\n"
+          "jsCode": "\nconst sanitizeWorkflow = (workflow) => {\n  const sensitiveKeyPatterns = [\n    /api[_-]?key/i,\n    /apikey/i,\n    /secret/i,\n    /password/i,\n    /passwd/i,\n    /token/i,\n    /private[_-]?key/i,\n    /client[_-]?secret/i,\n    /access[_-]?token/i,\n    /auth[_-]?key/i,\n    /bearer/i,\n    /credential/i,\n  ];\n\n  const sensitiveValuePatterns = [\n    /-----BEGIN [A-Z]+ PRIVATE KEY-----/,\n    /^[A-Za-z0-9+/]{40,}={0,2}$/, // long base64 strings\n  ];\n\n  const PLACEHOLDER = \"***SANITIZED***\";\n\n  const sanitizeValue = (key, value) => {\n    if (typeof value === 'string') {\n      // Check if key matches sensitive patterns\n      if (sensitiveKeyPatterns.some(p => p.test(key))) {\n        // Skip n8n expressions - they're not real secrets\n        if (value.startsWith('={{') || value.startsWith('{{')) return value;\n        if (value === '') return value;\n        return PLACEHOLDER;\n      }\n      // Check if value looks like a raw secret\n      if (sensitiveValuePatterns.some(p => p.test(value))) {\n        return PLACEHOLDER;\n      }\n    }\n    return value;\n  };\n\n  const sanitizeObj = (obj, parentKey = '') => {\n    if (Array.isArray(obj)) {\n      return obj.map(item => sanitizeObj(item, parentKey));\n    } else if (obj && typeof obj === 'object') {\n      const result = {};\n      for (const [k, v] of Object.entries(obj)) {\n        result[k] = sanitizeObj(v, k);\n      }\n      return result;\n    } else if (typeof obj === 'string') {\n      return sanitizeValue(parentKey, obj);\n    }\n    return obj;\n  };\n\n  return sanitizeObj(workflow);\n};\n\nconst orderJsonKeys = (jsonObj) => {\n  const ordered = {};\n  Object.keys(jsonObj).sort().forEach(key => {\n    ordered[key] = jsonObj[key];\n  });\n  return ordered;\n}\n\n// Check if file returned with content\nif (Object.keys($input.all()[0].json).includes(\"content\")) {\n  // Decode base64 content and parse JSON\n  const origWorkflow = JSON.parse(Buffer.from($input.all()[0].json.content, 'base64').toString());\n  const n8nWorkflow = $input.all()[1].json;\n  \n  // Order JSON objects\n  const orderedOriginal = orderJsonKeys(origWorkflow);\n  const orderedActual = orderJsonKeys(n8nWorkflow);\n\n  // Determine difference\n  if (JSON.stringify(orderedOriginal) === JSON.stringify(orderedActual)) {\n    $input.all()[0].json.github_status = \"same\";\n  } else {\n    $input.all()[0].json.github_status = \"different\";\n    $input.all()[0].json.n8n_data_stringy = JSON.stringify(sanitizeWorkflow(orderedActual), null, 2);\n  }\n  $input.all()[0].json.content_decoded = orderedOriginal;\n// No file returned / new workflow\n} else if (Object.keys($input.all()[0].json).includes(\"data\")) {\n  const origWorkflow = JSON.parse($input.all()[0].json.data);\n  const n8nWorkflow = $input.all()[1].json;\n  \n  // Order JSON objects\n  const orderedOriginal = orderJsonKeys(origWorkflow);\n  const orderedActual = orderJsonKeys(n8nWorkflow);\n\n  // Determine difference\n  if (JSON.stringify(orderedOriginal) === JSON.stringify(orderedActual)) {\n    $input.all()[0].json.github_status = \"same\";\n  } else {\n    $input.all()[0].json.github_status = \"different\";\n    $input.all()[0].json.n8n_data_stringy = JSON.stringify(sanitizeWorkflow(orderedActual), null, 2);\n  }\n  $input.all()[0].json.content_decoded = orderedOriginal;\n\n} else {\n  // Order JSON object\n  const n8nWorkflow = $input.all()[1].json;\n  const orderedActual = orderJsonKeys(n8nWorkflow);\n  \n  // Proper formatting\n  $input.all()[0].json.github_status = \"new\";\n  $input.all()[0].json.n8n_data_stringy = JSON.stringify(sanitizeWorkflow(orderedActual), null, 2);\n}\n\n// Return items\nreturn $input.all();\n"
         },
-        "id": "bbf6dea6-eee2-452d-9607-37d7fa90f3cc",
+        "id": "485ddd04-d57c-4a51-98b2-f35f2244a45a",
         "name": "isDiffOrNew",
         "type": "n8n-nodes-base.code",
         "position": [
-          3088,
-          288
+          976,
+          336
         ],
         "typeVersion": 1
       },
@@ -70,12 +70,12 @@
           "fileContent": "={{$('isDiffOrNew').item.json[\"n8n_data_stringy\"]}}",
           "commitMessage": "={{$('Loop Over Items').item.json.name}} ({{$json.github_status}})"
         },
-        "id": "e72473e3-d4e5-4306-99c2-5961515060f2",
+        "id": "5801d7a5-47fa-431f-8520-abb2a435e756",
         "name": "Create new file",
         "type": "n8n-nodes-base.github",
         "position": [
-          3536,
-          240
+          1408,
+          288
         ],
         "webhookId": "b440dead-fad0-4546-8ca7-201aa2ea2936",
         "typeVersion": 1,
@@ -104,12 +104,12 @@
           "fileContent": "={{$('isDiffOrNew').item.json[\"n8n_data_stringy\"]}}",
           "commitMessage": "={{$('Loop Over Items').item.json.name}} ({{$json.github_status}})"
         },
-        "id": "ce6f990e-4900-442d-9998-810dace92943",
+        "id": "dd013b93-3b37-4ec1-a065-0a4d79fb4419",
         "name": "Edit existing file",
         "type": "n8n-nodes-base.github",
         "position": [
-          3536,
-          48
+          1408,
+          96
         ],
         "webhookId": "1dfc4103-7c23-4814-a0b5-dd4f5a96d36b",
         "typeVersion": 1,
@@ -144,12 +144,12 @@
           },
           "options": {}
         },
-        "id": "06d3f09c-ca08-4a4a-825b-6cb2e8ef3c39",
+        "id": "ae7b37fa-560b-4084-8f97-e6b45513b4e7",
         "name": "Filter",
         "type": "n8n-nodes-base.filter",
         "position": [
-          1744,
-          240
+          -384,
+          288
         ],
         "typeVersion": 2.2
       },
@@ -159,12 +159,12 @@
           "height": 120,
           "width": 400
         },
-        "id": "3803f1ca-9296-46ce-8e35-01d8c5f9812c",
+        "id": "5cee33e8-9de4-4d83-b618-2bb4101b150e",
         "name": "Sticky Note3",
         "type": "n8n-nodes-base.stickyNote",
         "position": [
-          368,
-          240
+          -1760,
+          288
         ],
         "typeVersion": 1
       },
@@ -174,12 +174,12 @@
           "height": 340,
           "width": 400
         },
-        "id": "ea1096b7-ac85-41ef-98b9-88e2f50b9d44",
+        "id": "707b2cb9-8644-49a1-84ec-dde87572b0f8",
         "name": "Sticky Note4",
         "type": "n8n-nodes-base.stickyNote",
         "position": [
-          368,
-          400
+          -1760,
+          448
         ],
         "typeVersion": 1
       },
@@ -265,12 +265,12 @@
           },
           "options": {}
         },
-        "id": "c4139649-c1fd-4c1a-b90f-92ecac409fa2",
+        "id": "90f50198-56c3-491f-8300-304b44da74cf",
         "name": "Switch",
         "type": "n8n-nodes-base.switch",
         "position": [
-          3312,
-          272
+          1200,
+          320
         ],
         "typeVersion": 3.2
       },
@@ -281,12 +281,12 @@
           },
           "requestOptions": {}
         },
-        "id": "3ddd66d9-36a6-4aef-aa99-0a28421f0410",
+        "id": "78163556-7a99-46f9-ad53-f487843a09dc",
         "name": "Get Workflows",
         "type": "n8n-nodes-base.n8n",
         "position": [
-          1520,
-          240
+          -608,
+          288
         ],
         "typeVersion": 1,
         "credentials": {
@@ -329,12 +329,12 @@
           "includeOtherFields": true,
           "options": {}
         },
-        "id": "36774b8c-4e8a-411d-8d22-a58870d17152",
+        "id": "9fcbffd6-2373-4c07-8e91-d71dc94e7bef",
         "name": "Config",
         "type": "n8n-nodes-base.set",
         "position": [
-          1296,
-          240
+          -832,
+          288
         ],
         "typeVersion": 3.4
       },
@@ -346,12 +346,12 @@
             ]
           }
         },
-        "id": "ecb7924b-23f3-480d-aede-79edaa55be2a",
+        "id": "c1953a81-42a5-42ce-96ff-a9cce5ef27a4",
         "name": "Schedule Trigger",
         "type": "n8n-nodes-base.scheduleTrigger",
         "position": [
-          848,
-          240
+          -1280,
+          288
         ],
         "typeVersion": 1.2
       },
@@ -373,12 +373,12 @@
           "asBinaryProperty": false,
           "additionalParameters": {}
         },
-        "id": "a58a2c07-0162-433f-93e5-9fceabec5edc",
+        "id": "83dd0cdc-957d-42ee-80d1-f2122606e649",
         "name": "Get a file",
         "type": "n8n-nodes-base.github",
         "position": [
-          2192,
-          192
+          96,
+          208
         ],
         "webhookId": "c12420d3-b858-4ee4-81c4-9adc03e30865",
         "typeVersion": 1.1,
@@ -426,12 +426,12 @@
           },
           "options": {}
         },
-        "id": "97b1e70b-a584-46af-87de-2be74333c285",
+        "id": "068893a3-8c66-4b7a-b760-ef4c4aa24533",
         "name": "Is File too large?",
         "type": "n8n-nodes-base.if",
         "position": [
-          2416,
-          192
+          304,
+          208
         ],
         "typeVersion": 2.2
       },
@@ -440,12 +440,12 @@
           "url": "={{ $json.download_url }}",
           "options": {}
         },
-        "id": "78dd800a-e7df-4834-9e38-e0d8c5aa0c34",
+        "id": "b1acd3e6-2d94-4f13-9899-00eddb1c33ea",
         "name": "Get File",
         "type": "n8n-nodes-base.httpRequest",
         "position": [
-          2640,
-          168
+          528,
+          160
         ],
         "typeVersion": 4.2
       },
@@ -463,12 +463,12 @@
             "includeLinkToWorkflow": false
           }
         },
-        "id": "60ca8287-488e-4174-97e9-10bac6ae36e9",
+        "id": "acc56b1a-a9ac-4c8a-92f4-b98c01d9cd4a",
         "name": "Starting Message",
         "type": "n8n-nodes-base.slack",
         "position": [
-          1072,
-          240
+          -1056,
+          288
         ],
         "webhookId": "c02eb407-5547-4aa0-9ebf-46dab67b63b6",
         "typeVersion": 2.2,
@@ -491,11 +491,11 @@
           "text": "=✅ Backup has completed - {{ $('Get Workflows').all().length }} workflows have been processed.",
           "otherOptions": {}
         },
-        "id": "5f35553a-4e02-4a3f-a027-1d73860489ef",
+        "id": "fcd4897e-83b6-445e-8c60-751024722da9",
         "name": "Completed Notification",
         "type": "n8n-nodes-base.slack",
         "position": [
-          2192,
+          80,
           0
         ],
         "webhookId": "a0c6e8c8-5d71-40fa-b02b-63a7ed5726c4",
@@ -512,12 +512,12 @@
         "parameters": {
           "options": {}
         },
-        "id": "1adaa738-6b43-403d-8ddd-6b1556c8e344",
+        "id": "6d7c33ec-06b4-4309-ba73-0154dfdad795",
         "name": "Loop Over Items",
         "type": "n8n-nodes-base.splitInBatches",
         "position": [
-          1968,
-          240
+          -160,
+          288
         ],
         "typeVersion": 3
       }
@@ -723,11 +723,11 @@
       }
     },
     "authors": "Christopher Christian Cosingan",
-    "name": "Version 13787105",
+    "name": "Version 875b2698",
     "description": "",
     "autosaved": true
   },
-  "activeVersionId": "13787105-03d2-4d35-b958-e88fda2de6ee",
+  "activeVersionId": "875b2698-60e4-4317-a01d-f194196f0e98",
   "connections": {
     "Config": {
       "main": [
@@ -951,36 +951,36 @@
         },
         "options": {}
       },
-      "id": "d5efec23-eefc-443b-9e6d-4f41ee240d88",
+      "id": "f83be6a7-22c8-435c-9973-3536cd95e5a0",
       "name": "Return",
       "type": "n8n-nodes-base.set",
       "position": [
-        3776,
-        416
+        1664,
+        464
       ],
       "typeVersion": 3.3
     },
     {
       "parameters": {},
-      "id": "ede04e40-7152-40f8-9860-942b15fba268",
+      "id": "e8e7c145-ebbf-471b-b5ac-7d6f5ab051a0",
       "name": "Merge Items",
       "type": "n8n-nodes-base.merge",
       "position": [
-        2864,
-        288
+        752,
+        336
       ],
       "typeVersion": 2
     },
     {
       "parameters": {
-        "jsCode": "const orderJsonKeys = (jsonObj) => {\n  const ordered = {};\n  Object.keys(jsonObj).sort().forEach(key => {\n    ordered[key] = jsonObj[key];\n  });\n  return ordered;\n}\n\n// Check if file returned with content\nif (Object.keys($input.all()[0].json).includes(\"content\")) {\n  // Decode base64 content and parse JSON\n  const origWorkflow = JSON.parse(Buffer.from($input.all()[0].json.content, 'base64').toString());\n  const n8nWorkflow = $input.all()[1].json;\n  \n  // Order JSON objects\n  const orderedOriginal = orderJsonKeys(origWorkflow);\n  const orderedActual = orderJsonKeys(n8nWorkflow);\n\n  // Determine difference\n  if (JSON.stringify(orderedOriginal) === JSON.stringify(orderedActual)) {\n    $input.all()[0].json.github_status = \"same\";\n  } else {\n    $input.all()[0].json.github_status = \"different\";\n    $input.all()[0].json.n8n_data_stringy = JSON.stringify(orderedActual, null, 2);\n  }\n  $input.all()[0].json.content_decoded = orderedOriginal;\n// No file returned / new workflow\n} else if (Object.keys($input.all()[0].json).includes(\"data\")) {\n  const origWorkflow = JSON.parse($input.all()[0].json.data);\n  const n8nWorkflow = $input.all()[1].json;\n  \n  // Order JSON objects\n  const orderedOriginal = orderJsonKeys(origWorkflow);\n  const orderedActual = orderJsonKeys(n8nWorkflow);\n\n  // Determine difference\n  if (JSON.stringify(orderedOriginal) === JSON.stringify(orderedActual)) {\n    $input.all()[0].json.github_status = \"same\";\n  } else {\n    $input.all()[0].json.github_status = \"different\";\n    $input.all()[0].json.n8n_data_stringy = JSON.stringify(orderedActual, null, 2);\n  }\n  $input.all()[0].json.content_decoded = orderedOriginal;\n\n} else {\n  // Order JSON object\n  const n8nWorkflow = $input.all()[1].json;\n  const orderedActual = orderJsonKeys(n8nWorkflow);\n  \n  // Proper formatting\n  $input.all()[0].json.github_status = \"new\";\n  $input.all()[0].json.n8n_data_stringy = JSON.stringify(orderedActual, null, 2);\n}\n\n// Return items\nreturn $input.all();\n"
+        "jsCode": "\nconst sanitizeWorkflow = (workflow) => {\n  const sensitiveKeyPatterns = [\n    /api[_-]?key/i,\n    /apikey/i,\n    /secret/i,\n    /password/i,\n    /passwd/i,\n    /token/i,\n    /private[_-]?key/i,\n    /client[_-]?secret/i,\n    /access[_-]?token/i,\n    /auth[_-]?key/i,\n    /bearer/i,\n    /credential/i,\n  ];\n\n  const sensitiveValuePatterns = [\n    /-----BEGIN [A-Z]+ PRIVATE KEY-----/,\n    /^[A-Za-z0-9+/]{40,}={0,2}$/, // long base64 strings\n  ];\n\n  const PLACEHOLDER = \"***SANITIZED***\";\n\n  const sanitizeValue = (key, value) => {\n    if (typeof value === 'string') {\n      // Check if key matches sensitive patterns\n      if (sensitiveKeyPatterns.some(p => p.test(key))) {\n        // Skip n8n expressions - they're not real secrets\n        if (value.startsWith('={{') || value.startsWith('{{')) return value;\n        if (value === '') return value;\n        return PLACEHOLDER;\n      }\n      // Check if value looks like a raw secret\n      if (sensitiveValuePatterns.some(p => p.test(value))) {\n        return PLACEHOLDER;\n      }\n    }\n    return value;\n  };\n\n  const sanitizeObj = (obj, parentKey = '') => {\n    if (Array.isArray(obj)) {\n      return obj.map(item => sanitizeObj(item, parentKey));\n    } else if (obj && typeof obj === 'object') {\n      const result = {};\n      for (const [k, v] of Object.entries(obj)) {\n        result[k] = sanitizeObj(v, k);\n      }\n      return result;\n    } else if (typeof obj === 'string') {\n      return sanitizeValue(parentKey, obj);\n    }\n    return obj;\n  };\n\n  return sanitizeObj(workflow);\n};\n\nconst orderJsonKeys = (jsonObj) => {\n  const ordered = {};\n  Object.keys(jsonObj).sort().forEach(key => {\n    ordered[key] = jsonObj[key];\n  });\n  return ordered;\n}\n\n// Check if file returned with content\nif (Object.keys($input.all()[0].json).includes(\"content\")) {\n  // Decode base64 content and parse JSON\n  const origWorkflow = JSON.parse(Buffer.from($input.all()[0].json.content, 'base64').toString());\n  const n8nWorkflow = $input.all()[1].json;\n  \n  // Order JSON objects\n  const orderedOriginal = orderJsonKeys(origWorkflow);\n  const orderedActual = orderJsonKeys(n8nWorkflow);\n\n  // Determine difference\n  if (JSON.stringify(orderedOriginal) === JSON.stringify(orderedActual)) {\n    $input.all()[0].json.github_status = \"same\";\n  } else {\n    $input.all()[0].json.github_status = \"different\";\n    $input.all()[0].json.n8n_data_stringy = JSON.stringify(sanitizeWorkflow(orderedActual), null, 2);\n  }\n  $input.all()[0].json.content_decoded = orderedOriginal;\n// No file returned / new workflow\n} else if (Object.keys($input.all()[0].json).includes(\"data\")) {\n  const origWorkflow = JSON.parse($input.all()[0].json.data);\n  const n8nWorkflow = $input.all()[1].json;\n  \n  // Order JSON objects\n  const orderedOriginal = orderJsonKeys(origWorkflow);\n  const orderedActual = orderJsonKeys(n8nWorkflow);\n\n  // Determine difference\n  if (JSON.stringify(orderedOriginal) === JSON.stringify(orderedActual)) {\n    $input.all()[0].json.github_status = \"same\";\n  } else {\n    $input.all()[0].json.github_status = \"different\";\n    $input.all()[0].json.n8n_data_stringy = JSON.stringify(sanitizeWorkflow(orderedActual), null, 2);\n  }\n  $input.all()[0].json.content_decoded = orderedOriginal;\n\n} else {\n  // Order JSON object\n  const n8nWorkflow = $input.all()[1].json;\n  const orderedActual = orderJsonKeys(n8nWorkflow);\n  \n  // Proper formatting\n  $input.all()[0].json.github_status = \"new\";\n  $input.all()[0].json.n8n_data_stringy = JSON.stringify(sanitizeWorkflow(orderedActual), null, 2);\n}\n\n// Return items\nreturn $input.all();\n"
       },
-      "id": "bbf6dea6-eee2-452d-9607-37d7fa90f3cc",
+      "id": "485ddd04-d57c-4a51-98b2-f35f2244a45a",
       "name": "isDiffOrNew",
       "type": "n8n-nodes-base.code",
       "position": [
-        3088,
-        288
+        976,
+        336
       ],
       "typeVersion": 1
     },
@@ -1001,12 +1001,12 @@
         "fileContent": "={{$('isDiffOrNew').item.json[\"n8n_data_stringy\"]}}",
         "commitMessage": "={{$('Loop Over Items').item.json.name}} ({{$json.github_status}})"
       },
-      "id": "e72473e3-d4e5-4306-99c2-5961515060f2",
+      "id": "5801d7a5-47fa-431f-8520-abb2a435e756",
       "name": "Create new file",
       "type": "n8n-nodes-base.github",
       "position": [
-        3520,
-        240
+        1408,
+        288
       ],
       "webhookId": "b440dead-fad0-4546-8ca7-201aa2ea2936",
       "typeVersion": 1,
@@ -1035,12 +1035,12 @@
         "fileContent": "={{$('isDiffOrNew').item.json[\"n8n_data_stringy\"]}}",
         "commitMessage": "={{$('Loop Over Items').item.json.name}} ({{$json.github_status}})"
       },
-      "id": "ce6f990e-4900-442d-9998-810dace92943",
+      "id": "dd013b93-3b37-4ec1-a065-0a4d79fb4419",
       "name": "Edit existing file",
       "type": "n8n-nodes-base.github",
       "position": [
-        3520,
-        48
+        1408,
+        96
       ],
       "webhookId": "1dfc4103-7c23-4814-a0b5-dd4f5a96d36b",
       "typeVersion": 1,
@@ -1075,12 +1075,12 @@
         },
         "options": {}
       },
-      "id": "06d3f09c-ca08-4a4a-825b-6cb2e8ef3c39",
+      "id": "ae7b37fa-560b-4084-8f97-e6b45513b4e7",
       "name": "Filter",
       "type": "n8n-nodes-base.filter",
       "position": [
-        1744,
-        240
+        -384,
+        288
       ],
       "typeVersion": 2.2
     },
@@ -1090,12 +1090,12 @@
         "height": 120,
         "width": 400
       },
-      "id": "3803f1ca-9296-46ce-8e35-01d8c5f9812c",
+      "id": "5cee33e8-9de4-4d83-b618-2bb4101b150e",
       "name": "Sticky Note3",
       "type": "n8n-nodes-base.stickyNote",
       "position": [
-        368,
-        240
+        -1760,
+        288
       ],
       "typeVersion": 1
     },
@@ -1105,12 +1105,12 @@
         "height": 340,
         "width": 400
       },
-      "id": "ea1096b7-ac85-41ef-98b9-88e2f50b9d44",
+      "id": "707b2cb9-8644-49a1-84ec-dde87572b0f8",
       "name": "Sticky Note4",
       "type": "n8n-nodes-base.stickyNote",
       "position": [
-        368,
-        400
+        -1760,
+        448
       ],
       "typeVersion": 1
     },
@@ -1196,12 +1196,12 @@
         },
         "options": {}
       },
-      "id": "c4139649-c1fd-4c1a-b90f-92ecac409fa2",
+      "id": "90f50198-56c3-491f-8300-304b44da74cf",
       "name": "Switch",
       "type": "n8n-nodes-base.switch",
       "position": [
-        3312,
-        272
+        1200,
+        320
       ],
       "typeVersion": 3.2
     },
@@ -1212,12 +1212,12 @@
         },
         "requestOptions": {}
       },
-      "id": "3ddd66d9-36a6-4aef-aa99-0a28421f0410",
+      "id": "78163556-7a99-46f9-ad53-f487843a09dc",
       "name": "Get Workflows",
       "type": "n8n-nodes-base.n8n",
       "position": [
-        1520,
-        240
+        -608,
+        288
       ],
       "typeVersion": 1,
       "credentials": {
@@ -1260,12 +1260,12 @@
         "includeOtherFields": true,
         "options": {}
       },
-      "id": "36774b8c-4e8a-411d-8d22-a58870d17152",
+      "id": "9fcbffd6-2373-4c07-8e91-d71dc94e7bef",
       "name": "Config",
       "type": "n8n-nodes-base.set",
       "position": [
-        1296,
-        240
+        -832,
+        288
       ],
       "typeVersion": 3.4
     },
@@ -1277,15 +1277,14 @@
           ]
         }
       },
-      "id": "ecb7924b-23f3-480d-aede-79edaa55be2a",
+      "id": "c1953a81-42a5-42ce-96ff-a9cce5ef27a4",
       "name": "Schedule Trigger",
       "type": "n8n-nodes-base.scheduleTrigger",
       "position": [
-        848,
-        240
+        -1280,
+        288
       ],
-      "typeVersion": 1.2,
-      "disabled": true
+      "typeVersion": 1.2
     },
     {
       "parameters": {
@@ -1305,12 +1304,12 @@
         "asBinaryProperty": false,
         "additionalParameters": {}
       },
-      "id": "a58a2c07-0162-433f-93e5-9fceabec5edc",
+      "id": "83dd0cdc-957d-42ee-80d1-f2122606e649",
       "name": "Get a file",
       "type": "n8n-nodes-base.github",
       "position": [
-        2208,
-        160
+        96,
+        208
       ],
       "webhookId": "c12420d3-b858-4ee4-81c4-9adc03e30865",
       "typeVersion": 1.1,
@@ -1358,12 +1357,12 @@
         },
         "options": {}
       },
-      "id": "97b1e70b-a584-46af-87de-2be74333c285",
+      "id": "068893a3-8c66-4b7a-b760-ef4c4aa24533",
       "name": "Is File too large?",
       "type": "n8n-nodes-base.if",
       "position": [
-        2416,
-        160
+        304,
+        208
       ],
       "typeVersion": 2.2
     },
@@ -1372,12 +1371,12 @@
         "url": "={{ $json.download_url }}",
         "options": {}
       },
-      "id": "78dd800a-e7df-4834-9e38-e0d8c5aa0c34",
+      "id": "b1acd3e6-2d94-4f13-9899-00eddb1c33ea",
       "name": "Get File",
       "type": "n8n-nodes-base.httpRequest",
       "position": [
-        2640,
-        112
+        528,
+        160
       ],
       "typeVersion": 4.2
     },
@@ -1395,12 +1394,12 @@
           "includeLinkToWorkflow": false
         }
       },
-      "id": "60ca8287-488e-4174-97e9-10bac6ae36e9",
+      "id": "acc56b1a-a9ac-4c8a-92f4-b98c01d9cd4a",
       "name": "Starting Message",
       "type": "n8n-nodes-base.slack",
       "position": [
-        1072,
-        240
+        -1056,
+        288
       ],
       "webhookId": "c02eb407-5547-4aa0-9ebf-46dab67b63b6",
       "typeVersion": 2.2,
@@ -1423,12 +1422,12 @@
         "text": "=✅ Backup has completed - {{ $('Get Workflows').all().length }} workflows have been processed.",
         "otherOptions": {}
       },
-      "id": "5f35553a-4e02-4a3f-a027-1d73860489ef",
+      "id": "fcd4897e-83b6-445e-8c60-751024722da9",
       "name": "Completed Notification",
       "type": "n8n-nodes-base.slack",
       "position": [
-        2192,
-        -48
+        80,
+        0
       ],
       "webhookId": "a0c6e8c8-5d71-40fa-b02b-63a7ed5726c4",
       "executeOnce": true,
@@ -1444,12 +1443,12 @@
       "parameters": {
         "options": {}
       },
-      "id": "1adaa738-6b43-403d-8ddd-6b1556c8e344",
+      "id": "6d7c33ec-06b4-4309-ba73-0154dfdad795",
       "name": "Loop Over Items",
       "type": "n8n-nodes-base.splitInBatches",
       "position": [
-        1968,
-        240
+        -160,
+        288
       ],
       "typeVersion": 3
     }
@@ -1471,6 +1470,6 @@
   "staticData": null,
   "tags": [],
   "triggerCount": 1,
-  "updatedAt": "2026-02-06T16:13:25.941Z",
-  "versionId": "cc75bbbe-8278-4b0d-ae1e-2eb6f1c67395"
+  "updatedAt": "2026-03-02T11:40:36.916Z",
+  "versionId": "875b2698-60e4-4317-a01d-f194196f0e98"
 }
