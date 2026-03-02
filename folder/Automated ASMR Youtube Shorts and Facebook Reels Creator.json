@@ -1,9 +1,9 @@
 {
   "active": true,
   "activeVersion": {
-    "updatedAt": "2026-02-28T22:08:27.000Z",
-    "createdAt": "2026-02-28T22:08:19.658Z",
-    "versionId": "a440b9f4-8ccd-4eb9-9bdf-4dd7e12c985d",
+    "updatedAt": "2026-03-02T11:48:24.000Z",
+    "createdAt": "2026-03-02T11:48:23.172Z",
+    "versionId": "05c931bc-d91d-4d23-a99d-968e0fc2dbc1",
     "workflowId": "7FlsU7aeQ2DebtKPxefYU",
     "nodes": [
       {
@@ -403,6 +403,17 @@
         ],
         "id": "3d3361d0-68dd-4231-87b5-360c141e20e6",
         "name": "Get Video"
+      },
+      {
+        "parameters": {},
+        "type": "n8n-nodes-base.stickyNote",
+        "position": [
+          -48,
+          -352
+        ],
+        "typeVersion": 1,
+        "id": "cee6a0ef-ee1f-41b0-a5fb-812483d8ff10",
+        "name": "Sticky Note"
       }
     ],
     "connections": {
@@ -598,11 +609,11 @@
       }
     },
     "authors": "Christopher Christian Cosingan",
-    "name": "Version a440b9f4",
+    "name": "Version 05c931bc",
     "description": "",
-    "autosaved": true
+    "autosaved": false
   },
-  "activeVersionId": "a440b9f4-8ccd-4eb9-9bdf-4dd7e12c985d",
+  "activeVersionId": "05c931bc-d91d-4d23-a99d-968e0fc2dbc1",
   "connections": {
     "Schedule Trigger": {
       "main": [
@@ -1200,6 +1211,17 @@
       ],
       "id": "3d3361d0-68dd-4231-87b5-360c141e20e6",
       "name": "Get Video"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -48,
+        -352
+      ],
+      "typeVersion": 1,
+      "id": "cee6a0ef-ee1f-41b0-a5fb-812483d8ff10",
+      "name": "Sticky Note"
     }
   ],
   "pinData": {},
@@ -1219,6 +1241,6 @@
   "staticData": null,
   "tags": [],
   "triggerCount": 1,
-  "updatedAt": "2026-02-28T22:08:19.657Z",
-  "versionId": "a440b9f4-8ccd-4eb9-9bdf-4dd7e12c985d"
+  "updatedAt": "2026-03-02T11:48:23.171Z",
+  "versionId": "05c931bc-d91d-4d23-a99d-968e0fc2dbc1"
 }
