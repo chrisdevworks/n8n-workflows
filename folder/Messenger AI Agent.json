@@ -793,8 +793,8 @@
       "type": "@n8n/n8n-nodes-langchain.lmChatOllama",
       "typeVersion": 1,
       "position": [
-        -16,
-        208
+        -192,
+        880
       ],
       "id": "edbefde5-879b-446b-8d1b-6a936f51752d",
       "name": "Ollama Chat Model",
@@ -825,17 +825,6 @@
           "name": "OpenRouter account"
         }
       }
-    },
-    {
-      "parameters": {},
-      "type": "n8n-nodes-base.stickyNote",
-      "position": [
-        -576,
-        144
-      ],
-      "typeVersion": 1,
-      "id": "4a0e0bc9-c410-470c-823d-3159f02e8526",
-      "name": "Sticky Note"
     }
   ],
   "pinData": {
@@ -910,6 +899,6 @@
   "staticData": null,
   "tags": [],
   "triggerCount": 1,
-  "updatedAt": "2026-03-02T11:48:37.864Z",
-  "versionId": "d3a22250-95d5-4526-bf3a-7162ce5cfd93"
+  "updatedAt": "2026-03-13T01:53:09.789Z",
+  "versionId": "8e3119e2-821b-4e9b-8244-aa2e4627cec4"
 }
