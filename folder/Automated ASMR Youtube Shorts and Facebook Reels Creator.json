@@ -1,9 +1,9 @@
 {
   "active": true,
   "activeVersion": {
-    "updatedAt": "2026-03-02T11:48:24.000Z",
-    "createdAt": "2026-03-02T11:48:23.172Z",
-    "versionId": "05c931bc-d91d-4d23-a99d-968e0fc2dbc1",
+    "updatedAt": "2026-04-28T14:57:31.000Z",
+    "createdAt": "2026-04-23T21:25:15.371Z",
+    "versionId": "be86c144-0a64-45b7-960b-93886659f7f8",
     "workflowId": "7FlsU7aeQ2DebtKPxefYU",
     "nodes": [
       {
@@ -405,14 +405,18 @@
         "name": "Get Video"
       },
       {
-        "parameters": {},
+        "parameters": {
+          "content": "# Automated Youtube Shorts and Facebook Reels Creator",
+          "height": 688,
+          "width": 2640
+        },
         "type": "n8n-nodes-base.stickyNote",
         "position": [
-          -48,
+          -400,
           -352
         ],
         "typeVersion": 1,
-        "id": "cee6a0ef-ee1f-41b0-a5fb-812483d8ff10",
+        "id": "c94d458d-d2be-4f60-b8a9-cf3c69e82092",
         "name": "Sticky Note"
       }
     ],
@@ -609,11 +613,11 @@
       }
     },
     "authors": "Christopher Christian Cosingan",
-    "name": "Version 05c931bc",
+    "name": "Version be86c144",
     "description": "",
-    "autosaved": false
+    "autosaved": true
   },
-  "activeVersionId": "05c931bc-d91d-4d23-a99d-968e0fc2dbc1",
+  "activeVersionId": "be86c144-0a64-45b7-960b-93886659f7f8",
   "connections": {
     "Schedule Trigger": {
       "main": [
@@ -1213,14 +1217,18 @@
       "name": "Get Video"
     },
     {
-      "parameters": {},
+      "parameters": {
+        "content": "# Automated Youtube Shorts and Facebook Reels Creator",
+        "height": 688,
+        "width": 2640
+      },
       "type": "n8n-nodes-base.stickyNote",
       "position": [
-        -48,
+        -400,
         -352
       ],
       "typeVersion": 1,
-      "id": "cee6a0ef-ee1f-41b0-a5fb-812483d8ff10",
+      "id": "c94d458d-d2be-4f60-b8a9-cf3c69e82092",
       "name": "Sticky Note"
     }
   ],
@@ -1241,6 +1249,6 @@
   "staticData": null,
   "tags": [],
   "triggerCount": 1,
-  "updatedAt": "2026-03-02T11:48:23.171Z",
-  "versionId": "05c931bc-d91d-4d23-a99d-968e0fc2dbc1"
+  "updatedAt": "2026-04-28T14:58:01.943Z",
+  "versionId": "1c3f5e49-d98c-465c-a3f8-a831fe1fad6d"
 }
