@@ -1,0 +1,101 @@
+{
+  "active": false,
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "seo-brief",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [-400, 0],
+      "id": "a1b2c3d4-0001-4000-8000-000000000001",
+      "name": "Webhook Trigger",
+      "webhookId": "seo-brief-webhook"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=You are an expert SEO strategist. A user has submitted the following request:\n\n- **Keyword / Topic:** {{ $json.body.keyword }}\n- **Target Audience:** {{ $json.body.target_audience }}\n- **Content Type:** {{ $json.body.content_type }}\n\nGenerate a detailed SEO Content Brief in valid JSON using this exact structure:\n{\n  \"keyword\": \"<primary keyword>\",\n  \"seo_title_suggestions\": [\"<title 1>\", \"<title 2>\", \"<title 3>\"],\n  \"meta_description\": \"<150-160 character meta description>\",\n  \"target_word_count\": <number>,\n  \"search_intent\": \"<informational | transactional | navigational | commercial>\",\n  \"secondary_keywords\": [\"<kw1>\", \"<kw2>\", \"<kw3>\", \"<kw4>\", \"<kw5>\"],\n  \"lsi_keywords\": [\"<lsi1>\", \"<lsi2>\", \"<lsi3>\"],\n  \"content_outline\": [\n    { \"section\": \"Introduction\", \"notes\": \"<brief guidance>\" },\n    { \"section\": \"<H2 heading>\", \"notes\": \"<brief guidance>\" },\n    { \"section\": \"<H2 heading>\", \"notes\": \"<brief guidance>\" },\n    { \"section\": \"<H2 heading>\", \"notes\": \"<brief guidance>\" },\n    { \"section\": \"FAQs\", \"notes\": \"List 3 common questions and short answers\" },\n    { \"section\": \"Conclusion\", \"notes\": \"<brief guidance>\" }\n  ],\n  \"internal_link_opportunities\": [\"<topic 1>\", \"<topic 2>\"],\n  \"cta_suggestion\": \"<recommended call-to-action>\"\n}\n\nReturn ONLY the JSON object. No markdown, no explanation, no extra text.",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [-100, 0],
+      "id": "a1b2c3d4-0002-4000-8000-000000000002",
+      "name": "AI SEO Brief Generator"
+    },
+    {
+      "parameters": {
+        "model": "gpt-4o-mini",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [-100, 240],
+      "id": "a1b2c3d4-0003-4000-8000-000000000003",
+      "name": "OpenAI GPT-4o Mini",
+      "credentials": {
+        "openAiApi": {
+          "id": "openai-credentials-id",
+          "name": "OpenAI account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const rawOutput = $input.first().json.output;\n\nlet brief;\ntry {\n  // Strip markdown code fences if present\n  const cleaned = rawOutput.replace(/```json\\n?|```/g, '').trim();\n  brief = JSON.parse(cleaned);\n} catch (e) {\n  return [{ json: { error: 'Failed to parse AI output', raw: rawOutput } }];\n}\n\nreturn [\n  {\n    json: {\n      success: true,\n      generated_at: new Date().toISOString(),\n      brief\n    }\n  }\n];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [200, 0],
+      "id": "a1b2c3d4-0004-4000-8000-000000000004",
+      "name": "Parse & Format Output"
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ $json }}",
+        "options": {
+          "responseCode": 200
+        }
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.4,
+      "position": [460, 0],
+      "id": "a1b2c3d4-0005-4000-8000-000000000005",
+      "name": "Return SEO Brief"
+    }
+  ],
+  "connections": {
+    "Webhook Trigger": {
+      "main": [
+        [{ "node": "AI SEO Brief Generator", "type": "main", "index": 0 }]
+      ]
+    },
+    "AI SEO Brief Generator": {
+      "main": [
+        [{ "node": "Parse & Format Output", "type": "main", "index": 0 }]
+      ]
+    },
+    "OpenAI GPT-4o Mini": {
+      "ai_languageModel": [
+        [{ "node": "AI SEO Brief Generator", "type": "ai_languageModel", "index": 0 }]
+      ]
+    },
+    "Parse & Format Output": {
+      "main": [
+        [{ "node": "Return SEO Brief", "type": "main", "index": 0 }]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "ai-seo-content-brief-generator"
+  }
+}
