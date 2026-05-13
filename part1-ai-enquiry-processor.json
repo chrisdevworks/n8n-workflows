@@ -1,0 +1,281 @@
+{
+  "name": "AI Client Enquiry Processor - Strata Management",
+  "nodes": [
+    {
+      "parameters": {
+        "content": "## AI Client Enquiry Processor\n### Part 1 — AI Developer Assessment\n\n**One-time setup:**\n1. Go to **Credentials → New → Header Auth**\n   - Name: `Anthropic API Key`\n   - Header Name: `x-api-key`\n   - Header Value: `sk-ant-...` (your key)\n2. Open the **\"Call Claude API\"** node and select that credential\n3. Click **Activate** to enable the webhook\n\n**Send enquiries via POST:**\n```\nPOST <your-n8n-url>/webhook/process-enquiry\nContent-Type: application/json\n\n{\n  \"enquiry\": \"I have a question about my levy notice\",\n  \"sender_name\": \"Jane Smith\",\n  \"sender_email\": \"jane@example.com\"\n}\n```\n\n**Response includes:** classification, confidence score, urgency, summary, key details, suggested email response, recommended action, and routing suggestion.",
+        "height": 340,
+        "width": 400,
+        "color": 5
+      },
+      "id": "00000000-0000-0000-0000-000000000001",
+      "name": "Setup Instructions",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [240, 40]
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "process-enquiry",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "00000000-0000-0000-0000-000000000002",
+      "name": "Receive Enquiry",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [260, 440],
+      "webhookId": "process-enquiry"
+    },
+    {
+      "parameters": {
+        "jsCode": "const input = $input.first().json;\nconst body = input.body || input;\n\nconst enquiry = (body.enquiry || body.message || body.text || '').trim();\nconst senderName = (body.sender_name || body.name || 'Unknown Client').trim();\nconst senderEmail = (body.sender_email || body.email || '').trim();\nconst senderPhone = (body.sender_phone || body.phone || '').trim();\n\nif (!enquiry) {\n  return [{\n    json: {\n      valid: false,\n      error: 'missing_enquiry',\n      message: 'No enquiry text provided. Include an \"enquiry\" field in your request body.'\n    }\n  }];\n}\n\nif (enquiry.length < 10) {\n  return [{\n    json: {\n      valid: false,\n      error: 'enquiry_too_short',\n      message: 'Enquiry text is too short (minimum 10 characters). Please provide more detail.'\n    }\n  }];\n}\n\nif (enquiry.length > 5000) {\n  return [{\n    json: {\n      valid: false,\n      error: 'enquiry_too_long',\n      message: `Enquiry exceeds 5000 character limit (received ${enquiry.length} chars). Please summarise your enquiry.`\n    }\n  }];\n}\n\nreturn [{\n  json: {\n    valid: true,\n    enquiry: enquiry,\n    sender_name: senderName,\n    sender_email: senderEmail,\n    sender_phone: senderPhone,\n    timestamp: new Date().toISOString()\n  }\n}];"
+      },
+      "id": "00000000-0000-0000-0000-000000000003",
+      "name": "Validate Input",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [480, 440]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "condition-valid-check",
+              "leftValue": "={{ $json.valid }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "true"
+              }
+            }
+          ],
+          "combinator": "and"
+        }
+      },
+      "id": "00000000-0000-0000-0000-000000000004",
+      "name": "Input Valid?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [700, 440]
+    },
+    {
+      "parameters": {
+        "jsCode": "const data = $input.first().json;\n\nconst systemPrompt = `You are an AI assistant for Strata Management Consultants, a strata property management company based in Australia. Your role is to analyse incoming client enquiries and provide structured guidance to help staff respond quickly and accurately.\n\nAnalyse the client enquiry provided and return a single JSON object with EXACTLY these fields (no extra text, no markdown, no code blocks):\n\n{\n  \"classification\": \"<one of: new_client_enquiry | support_request | complaint | general_question | billing_enquiry | maintenance_request | legal_matter | urgent_matter>\",\n  \"confidence\": <decimal 0.0 to 1.0 — how certain you are of the classification>,\n  \"urgency\": \"<one of: low | medium | high>\",\n  \"summary\": \"<one-sentence summary of what the client needs, max 120 characters>\",\n  \"key_details\": [\"<key point 1>\", \"<key point 2>\", \"...\"],\n  \"suggested_response\": \"<professional email response draft the staff member can send or personalise — use [Staff Name] as placeholder for sender, address the client by their name if provided>\",\n  \"recommended_action\": \"<concrete next step the staff member should take, e.g. 'Schedule callback within 24 hours', 'Forward to accounts team', 'Escalate to senior property manager'>\",\n  \"routing_suggestion\": \"<which team or role should handle this, e.g. 'Property Manager', 'Accounts Team', 'Building Manager', 'Senior Manager - Escalation'>\"\n}\n\nClassification guide:\n- new_client_enquiry: person asking about signing up or engaging services\n- support_request: existing client needing help with something\n- complaint: client expressing dissatisfaction or lodging a formal complaint\n- general_question: information request not requiring action\n- billing_enquiry: questions about levies, invoices, payments, or financials\n- maintenance_request: repair, inspection, or building maintenance related\n- legal_matter: by-law disputes, legal notices, NCAT, or legal advice requests\n- urgent_matter: safety issue, emergency, or time-critical situation\n\nReturn ONLY the JSON object. No explanation, no markdown, no extra text.`;\n\nconst senderLine = data.sender_name !== 'Unknown Client'\n  ? `Sender: ${data.sender_name}${data.sender_email ? ' <' + data.sender_email + '>' : ''}`\n  : 'Sender: Unknown';\n\nconst userMessage = `${senderLine}\\n\\nEnquiry:\\n${data.enquiry}`;\n\nconst requestBody = {\n  model: 'claude-3-5-sonnet-20241022',\n  max_tokens: 1500,\n  system: systemPrompt,\n  messages: [\n    {\n      role: 'user',\n      content: userMessage\n    }\n  ]\n};\n\nreturn [{\n  json: {\n    ...data,\n    request_body: JSON.stringify(requestBody)\n  }\n}];"
+      },
+      "id": "00000000-0000-0000-0000-000000000005",
+      "name": "Build AI Request",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [920, 320]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.anthropic.com/v1/messages",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "anthropic-version",
+              "value": "2023-06-01"
+            },
+            {
+              "name": "content-type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "raw",
+        "rawContentType": "application/json",
+        "body": "={{ $json.request_body }}",
+        "options": {
+          "response": {
+            "response": {
+              "neverError": true
+            }
+          }
+        }
+      },
+      "id": "00000000-0000-0000-0000-000000000006",
+      "name": "Call Claude API",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [1140, 320],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "1",
+          "name": "Anthropic API Key"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const httpResponse = $input.first().json;\nconst inputData = $('Build AI Request').first().json;\n\n// Handle Anthropic API-level errors (auth, rate limit, etc.)\nif (httpResponse.type === 'error') {\n  return [{\n    json: {\n      success: false,\n      http_status: 500,\n      error: httpResponse.error?.type || 'api_error',\n      message: httpResponse.error?.message || 'The AI service returned an error. Please check your API key and try again.'\n    }\n  }];\n}\n\n// Handle unexpected response structure\nif (!httpResponse.content || !Array.isArray(httpResponse.content) || !httpResponse.content[0]?.text) {\n  return [{\n    json: {\n      success: false,\n      http_status: 500,\n      error: 'unexpected_response',\n      message: 'AI service returned an unexpected response format.',\n      raw: JSON.stringify(httpResponse).substring(0, 300)\n    }\n  }];\n}\n\nconst rawText = httpResponse.content[0].text.trim();\n\n// Parse AI JSON response — handle accidental markdown wrapping\nlet aiResult;\ntry {\n  const jsonMatch = rawText.match(/\\{[\\s\\S]*\\}/);\n  if (!jsonMatch) throw new Error('No JSON object found in AI response');\n  aiResult = JSON.parse(jsonMatch[0]);\n} catch (parseErr) {\n  return [{\n    json: {\n      success: false,\n      http_status: 500,\n      error: 'parse_error',\n      message: `Could not parse AI response as JSON: ${parseErr.message}`,\n      raw_response: rawText.substring(0, 500)\n    }\n  }];\n}\n\n// Validate classification is a known type, fall back gracefully\nconst validClassifications = [\n  'new_client_enquiry', 'support_request', 'complaint', 'general_question',\n  'billing_enquiry', 'maintenance_request', 'legal_matter', 'urgent_matter'\n];\nconst classification = validClassifications.includes(aiResult.classification)\n  ? aiResult.classification\n  : 'general_question';\n\n// Clamp confidence to 0–1\nconst confidenceRaw = typeof aiResult.confidence === 'number' ? aiResult.confidence : 0.5;\nconst confidence = Math.min(1, Math.max(0, confidenceRaw));\n\n// Normalise urgency\nconst validUrgency = ['low', 'medium', 'high'];\nconst urgency = validUrgency.includes(aiResult.urgency) ? aiResult.urgency : 'medium';\n\nreturn [{\n  json: {\n    success: true,\n    http_status: 200,\n    enquiry: {\n      original_text: inputData.enquiry,\n      sender_name: inputData.sender_name,\n      sender_email: inputData.sender_email || null,\n      sender_phone: inputData.sender_phone || null,\n      received_at: inputData.timestamp\n    },\n    analysis: {\n      classification: classification,\n      confidence_score: confidence,\n      confidence_percent: Math.round(confidence * 100) + '%',\n      urgency: urgency,\n      summary: aiResult.summary || 'No summary available',\n      key_details: Array.isArray(aiResult.key_details) ? aiResult.key_details : []\n    },\n    staff_guidance: {\n      recommended_action: aiResult.recommended_action || 'Review and respond manually',\n      routing_suggestion: aiResult.routing_suggestion || 'General Enquiries Team',\n      suggested_response: aiResult.suggested_response || 'No suggested response generated'\n    },\n    meta: {\n      processed_at: new Date().toISOString(),\n      model: 'claude-3-5-sonnet-20241022',\n      tokens_used: httpResponse.usage\n        ? { input: httpResponse.usage.input_tokens, output: httpResponse.usage.output_tokens }\n        : null,\n      workflow_version: '1.0.0'\n    }\n  }\n}];"
+      },
+      "id": "00000000-0000-0000-0000-000000000007",
+      "name": "Parse & Format Result",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1360, 320]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ JSON.stringify($json) }}",
+        "options": {
+          "responseCode": 200,
+          "responseHeaders": {
+            "entries": [
+              {
+                "name": "Content-Type",
+                "value": "application/json"
+              }
+            ]
+          }
+        }
+      },
+      "id": "00000000-0000-0000-0000-000000000008",
+      "name": "Respond - Success",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [1580, 320]
+    },
+    {
+      "parameters": {
+        "jsCode": "const data = $input.first().json;\nreturn [{\n  json: {\n    success: false,\n    http_status: 400,\n    error: data.error,\n    message: data.message\n  }\n}];"
+      },
+      "id": "00000000-0000-0000-0000-000000000009",
+      "name": "Format Validation Error",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [920, 580]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ JSON.stringify($json) }}",
+        "options": {
+          "responseCode": 400,
+          "responseHeaders": {
+            "entries": [
+              {
+                "name": "Content-Type",
+                "value": "application/json"
+              }
+            ]
+          }
+        }
+      },
+      "id": "00000000-0000-0000-0000-000000000010",
+      "name": "Respond - Validation Error",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [1140, 580]
+    }
+  ],
+  "connections": {
+    "Receive Enquiry": {
+      "main": [
+        [
+          {
+            "node": "Validate Input",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Validate Input": {
+      "main": [
+        [
+          {
+            "node": "Input Valid?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Input Valid?": {
+      "main": [
+        [
+          {
+            "node": "Build AI Request",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Format Validation Error",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build AI Request": {
+      "main": [
+        [
+          {
+            "node": "Call Claude API",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Call Claude API": {
+      "main": [
+        [
+          {
+            "node": "Parse & Format Result",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse & Format Result": {
+      "main": [
+        [
+          {
+            "node": "Respond - Success",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Format Validation Error": {
+      "main": [
+        [
+          {
+            "node": "Respond - Validation Error",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": null,
+  "meta": {
+    "templateCreatedBy": "AI Developer Assessment - Part 1"
+  },
+  "pinData": {}
+}
