@@ -1,0 +1,167 @@
+{
+  "active": false,
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "seo-brief",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [-400, 0],
+      "id": "a1b2c3d4-0001-4000-8000-000000000001",
+      "name": "Webhook Trigger",
+      "webhookId": "seo-brief-webhook"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=You are an expert SEO strategist. A user has submitted the following request:\n\n- **Keyword / Topic:** {{ $json.body.keyword }}\n- **Target Audience:** {{ $json.body.target_audience }}\n- **Content Type:** {{ $json.body.content_type }}\n\nGenerate a detailed SEO Content Brief in valid JSON using this exact structure:\n{\n  \"keyword\": \"<primary keyword>\",\n  \"seo_title_suggestions\": [\"<title 1>\", \"<title 2>\", \"<title 3>\"],\n  \"meta_description\": \"<150-160 character meta description>\",\n  \"target_word_count\": <number>,\n  \"search_intent\": \"<informational | transactional | navigational | commercial>\",\n  \"secondary_keywords\": [\"<kw1>\", \"<kw2>\", \"<kw3>\", \"<kw4>\", \"<kw5>\"],\n  \"lsi_keywords\": [\"<lsi1>\", \"<lsi2>\", \"<lsi3>\"],\n  \"content_outline\": [\n    { \"section\": \"Introduction\", \"notes\": \"<brief guidance>\" },\n    { \"section\": \"<H2 heading>\", \"notes\": \"<brief guidance>\" },\n    { \"section\": \"<H2 heading>\", \"notes\": \"<brief guidance>\" },\n    { \"section\": \"<H2 heading>\", \"notes\": \"<brief guidance>\" },\n    { \"section\": \"FAQs\", \"notes\": \"List 3 common questions and short answers\" },\n    { \"section\": \"Conclusion\", \"notes\": \"<brief guidance>\" }\n  ],\n  \"internal_link_opportunities\": [\"<topic 1>\", \"<topic 2>\"],\n  \"cta_suggestion\": \"<recommended call-to-action>\"\n}\n\nReturn ONLY the JSON object. No markdown, no explanation, no extra text.",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [-100, 0],
+      "id": "a1b2c3d4-0002-4000-8000-000000000002",
+      "name": "AI SEO Brief Generator"
+    },
+    {
+      "parameters": {
+        "model": "claude-haiku-4-5-20251001",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatAnthropic",
+      "typeVersion": 1.3,
+      "position": [-100, 240],
+      "id": "a1b2c3d4-0003-4000-8000-000000000003",
+      "name": "Claude Haiku",
+      "credentials": {
+        "anthropicApi": {
+          "id": "anthropic-credentials-id",
+          "name": "Anthropic account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const rawOutput = $input.first().json.output;\n\nlet brief;\ntry {\n  const cleaned = rawOutput.replace(/```json\\n?|```/g, '').trim();\n  brief = JSON.parse(cleaned);\n} catch (e) {\n  return [{ json: { error: 'Failed to parse AI output', raw: rawOutput } }];\n}\n\nreturn [\n  {\n    json: {\n      success: true,\n      generated_at: new Date().toISOString(),\n      brief\n    }\n  }\n];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [200, 0],
+      "id": "a1b2c3d4-0004-4000-8000-000000000004",
+      "name": "Parse & Format Output"
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "YOUR_GOOGLE_SHEET_ID",
+          "mode": "id"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "SEO Briefs",
+          "mode": "name"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Date": "={{ $json.generated_at }}",
+            "Keyword": "={{ $json.brief.keyword }}",
+            "Search Intent": "={{ $json.brief.search_intent }}",
+            "Word Count": "={{ $json.brief.target_word_count }}",
+            "Title 1": "={{ $json.brief.seo_title_suggestions[0] }}",
+            "Title 2": "={{ $json.brief.seo_title_suggestions[1] }}",
+            "Title 3": "={{ $json.brief.seo_title_suggestions[2] }}",
+            "Meta Description": "={{ $json.brief.meta_description }}",
+            "Secondary KWs": "={{ $json.brief.secondary_keywords.join(', ') }}",
+            "LSI KWs": "={{ $json.brief.lsi_keywords.join(', ') }}",
+            "Content Outline": "={{ JSON.stringify($json.brief.content_outline) }}",
+            "Internal Links": "={{ $json.brief.internal_link_opportunities.join(', ') }}",
+            "CTA": "={{ $json.brief.cta_suggestion }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            { "id": "Date", "displayName": "Date", "required": false, "defaultMatch": false, "display": true, "type": "string", "canBeUsedToMatch": true },
+            { "id": "Keyword", "displayName": "Keyword", "required": false, "defaultMatch": false, "display": true, "type": "string", "canBeUsedToMatch": true },
+            { "id": "Search Intent", "displayName": "Search Intent", "required": false, "defaultMatch": false, "display": true, "type": "string", "canBeUsedToMatch": true },
+            { "id": "Word Count", "displayName": "Word Count", "required": false, "defaultMatch": false, "display": true, "type": "number", "canBeUsedToMatch": true },
+            { "id": "Title 1", "displayName": "Title 1", "required": false, "defaultMatch": false, "display": true, "type": "string", "canBeUsedToMatch": true },
+            { "id": "Title 2", "displayName": "Title 2", "required": false, "defaultMatch": false, "display": true, "type": "string", "canBeUsedToMatch": true },
+            { "id": "Title 3", "displayName": "Title 3", "required": false, "defaultMatch": false, "display": true, "type": "string", "canBeUsedToMatch": true },
+            { "id": "Meta Description", "displayName": "Meta Description", "required": false, "defaultMatch": false, "display": true, "type": "string", "canBeUsedToMatch": true },
+            { "id": "Secondary KWs", "displayName": "Secondary KWs", "required": false, "defaultMatch": false, "display": true, "type": "string", "canBeUsedToMatch": true },
+            { "id": "LSI KWs", "displayName": "LSI KWs", "required": false, "defaultMatch": false, "display": true, "type": "string", "canBeUsedToMatch": true },
+            { "id": "Content Outline", "displayName": "Content Outline", "required": false, "defaultMatch": false, "display": true, "type": "string", "canBeUsedToMatch": true },
+            { "id": "Internal Links", "displayName": "Internal Links", "required": false, "defaultMatch": false, "display": true, "type": "string", "canBeUsedToMatch": true },
+            { "id": "CTA", "displayName": "CTA", "required": false, "defaultMatch": false, "display": true, "type": "string", "canBeUsedToMatch": true }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [460, 0],
+      "id": "a1b2c3d4-0006-4000-8000-000000000006",
+      "name": "Save to Google Sheets",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "google-sheets-credentials-id",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ $('Parse & Format Output').first().json }}",
+        "options": {
+          "responseCode": 200
+        }
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.4,
+      "position": [720, 0],
+      "id": "a1b2c3d4-0005-4000-8000-000000000005",
+      "name": "Return SEO Brief"
+    }
+  ],
+  "connections": {
+    "Webhook Trigger": {
+      "main": [
+        [{ "node": "AI SEO Brief Generator", "type": "main", "index": 0 }]
+      ]
+    },
+    "AI SEO Brief Generator": {
+      "main": [
+        [{ "node": "Parse & Format Output", "type": "main", "index": 0 }]
+      ]
+    },
+    "Claude Haiku": {
+      "ai_languageModel": [
+        [{ "node": "AI SEO Brief Generator", "type": "ai_languageModel", "index": 0 }]
+      ]
+    },
+    "Parse & Format Output": {
+      "main": [
+        [{ "node": "Save to Google Sheets", "type": "main", "index": 0 }]
+      ]
+    },
+    "Save to Google Sheets": {
+      "main": [
+        [{ "node": "Return SEO Brief", "type": "main", "index": 0 }]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "ai-seo-content-brief-generator"
+  }
+}
